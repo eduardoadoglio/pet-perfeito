@@ -30,14 +30,14 @@ public class UsuarioController {
     UsuarioRepository usuarioRepository;
 
     @GetMapping("/users")
-    public ResponseEntity<List<Usuario>> getAllUsers(@RequestParam(required = false) String name) {
+    public ResponseEntity<List<Usuario>> getAllUsers(@RequestParam(required = false) String nome) {
         try {
             List<Usuario> users = new ArrayList<Usuario>();
 
-            if (name == null)
+            if (nome == null)
                 usuarioRepository.findAll().forEach(users::add);
             else
-                usuarioRepository.findByNameContaining(name).forEach(users::add);
+                usuarioRepository.findByNome(nome).forEach(users::add);
 
             if (users.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);

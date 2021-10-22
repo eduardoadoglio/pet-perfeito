@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.esi.petperfeito.model.Usuario;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
-    List<Usuario> findByCep(String cep);
     List<Usuario> findByCpf(String cpf);
-    List<Usuario> findByNameContaining(String nome);
+    List<Usuario> findByNome(String nome);
 }
