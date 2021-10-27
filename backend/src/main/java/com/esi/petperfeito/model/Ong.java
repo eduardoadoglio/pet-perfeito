@@ -10,11 +10,11 @@ public class Ong {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @Column(name = "nome")
-    private String nome;
+    @Column(name = "denominacao")
+    private String denominacao;
 
-    @Column(name = "cpf")
-    private String cpf;
+    @Column(name = "cnpj")
+    private String cnpj;
 
     @Column(name = "telefone")
     private String telefone;
@@ -22,35 +22,43 @@ public class Ong {
     @Column(name = "cep")
     private String cep;
 
-    @Column(name = "data_nascimento")
-    private String dataNascimento;
+    @Column(name = "natureza")
+    private String natureza;
+
+    @Column(name = "area_atuacao")
+    private String areaAtuacao;
+
+    @Column(name = "data_fundacao")
+    private String dataFundacao;
 
     public Ong() {
 
     }
 
-    public Ong(String nome, String cpf, String telefone, String cep, String dataNascimento) {
-        this.nome = nome;
-        this.cpf = cpf;
+    public Ong(String denominacao, String cnpj, String telefone, String cep, String natureza, String areaAtuacao, String dataFundacao) {
+        this.denominacao = denominacao;
+        this.cnpj = cnpj;
         this.telefone = telefone;
         this.cep = cep;
-        this.dataNascimento = dataNascimento;
+        this.natureza = natureza;
+        this.areaAtuacao = areaAtuacao;
+        this.dataFundacao = dataFundacao;
     }
 
-    public String getNome() {
-        return nome;
+    public String getDenominacao() {
+        return denominacao;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setDenominacao(String denominacao) {
+        this.denominacao = denominacao;
     }
 
-    public String getCpf() {
-        return cpf;
+    public String getCnpj() {
+        return cnpj;
     }
 
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
+    public void setCnpj(String cnpj) {
+        this.cnpj = cnpj;
     }
 
     public String getTelefone() {
@@ -69,28 +77,41 @@ public class Ong {
         this.cep = cep;
     }
 
-    public String getDataNascimento() {
-        return dataNascimento;
+    public String getNatureza() {
+        return natureza;
     }
 
-    public void setDataNascimento(String dataNascimento) {
-        this.dataNascimento = dataNascimento;
+    public void setNatureza(String natureza) {
+        this.natureza = natureza;
     }
 
-    public long getId() {
-        return id;
+    public String getAreaAtuacao() {
+        return areaAtuacao;
     }
 
+    public void setAreaAtuacao(String areaAtuacao) {
+        this.areaAtuacao = areaAtuacao;
+    }
+
+    public String getDataFundacao() {
+        return dataFundacao;
+    }
+
+    public void setDataFundacao(String dataFundacao) {
+        this.dataFundacao = dataFundacao;
+    }
 
     @Override
     public String toString() {
         return "Ong{" +
                 "id=" + id +
-                ", nome='" + nome + '\'' +
-                ", cpf='" + cpf + '\'' +
+                ", denominacao='" + denominacao + '\'' +
+                ", cnpj='" + cnpj + '\'' +
                 ", telefone='" + telefone + '\'' +
                 ", cep='" + cep + '\'' +
-                ", dataNascimento='" + dataNascimento + '\'' +
+                ", natureza='" + natureza + '\'' +
+                ", areaAtuacao='" + areaAtuacao + '\'' +
+                ", dataFundacao='" + dataFundacao + '\'' +
                 '}';
     }
 }

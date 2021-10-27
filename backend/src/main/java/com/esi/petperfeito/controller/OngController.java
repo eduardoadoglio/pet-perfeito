@@ -30,14 +30,14 @@ public class OngController {
     OngRepository ongRepository;
 
     @GetMapping("/ongs")
-    public ResponseEntity<List<Ong>> getAllOngs(@RequestParam(required = false) String nome) {
+    public ResponseEntity<List<Ong>> getAllOngs(@RequestParam(required = false) String denominacao) {
         try {
             List<Ong> ongs = new ArrayList<Ong>();
 
-            if (nome == null)
+            if (denominacao == null)
                 ongRepository.findAll().forEach(ongs::add);
             else
-                ongRepository.findByNome(nome).forEach(ongs::add);
+                ongRepository.findByDenominacao(denominacao).forEach(ongs::add);
 
             if (ongs.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -64,7 +64,7 @@ public class OngController {
     public ResponseEntity<Ong> createOng(@RequestBody Ong ong) {
         try {
             Ong _ong = ongRepository
-                    .save(new Ong(ong.getNome(), ong.getCpf(), ong.getTelefone(), ong.getCep(), Ong.getDataNascimento()));
+                    .save(new Ong(ong.getDenominacao(), ong.getCnpj(), ong.getTelefone(), ong.getCep(), ong.getNatureza(), ong.getAreaAtuacao(), ong.getDataFundacao()));
             return new ResponseEntity<>(_ong, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -77,11 +77,13 @@ public class OngController {
 
         if (ongData.isPresent()) {
             Ong _ong = ongData.get();
-            _ong.setNome(ong.getNome());
-            _ong.setCpf(ong.getCpf());
+            _ong.setDenominacao(ong.getDenominacao());
+            _ong.setCnpj(ong.getCnpj());
             _ong.setTelefone(ong.getTelefone());
             _ong.setCep(ong.getCep());
-            _ong.setDataNascimento(ong.getDataNascimento());
+            _ong.setNatureza(ong.getNatureza());
+            _ong.setAreaAtuacao(ong.getAreaAtuacao());
+            _ong.setDataFundacao(ong.getDataFundacao());
             return new ResponseEntity<>(ongRepository.save(_ong), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
