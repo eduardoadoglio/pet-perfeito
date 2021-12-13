@@ -32,12 +32,12 @@ public class UsuarioController {
     @GetMapping("/users")
     public ResponseEntity<List<Usuario>> getAllUsers(@RequestParam(required = false) String nome) {
         try {
-            List<Usuario> users = new ArrayList<Usuario>();
+            List<Usuario> users = new ArrayList<>();
 
             if (nome == null)
-                usuarioRepository.findAll().forEach(users::add);
+                users.addAll(usuarioRepository.findAll());
             else
-                usuarioRepository.findByNome(nome).forEach(users::add);
+                users.addAll(usuarioRepository.findByNome(nome));
 
             if (users.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -53,11 +53,7 @@ public class UsuarioController {
     public ResponseEntity<Usuario> getUserById(@PathVariable("id") long id) {
         Optional<Usuario> usuarioData = usuarioRepository.findById(id);
 
-        if (usuarioData.isPresent()) {
-            return new ResponseEntity<>(usuarioData.get(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return usuarioData.map(usuario -> new ResponseEntity<>(usuario, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping("/users")

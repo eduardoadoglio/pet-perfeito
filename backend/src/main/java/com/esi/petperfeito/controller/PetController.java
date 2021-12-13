@@ -32,12 +32,12 @@ public class PetController {
     @GetMapping("/pets")
     public ResponseEntity<List<Pet>> getAllPets(@RequestParam(required = false) String nome) {
         try {
-            List<Pet> pets = new ArrayList<Pet>();
+            List<Pet> pets = new ArrayList<>();
 
             if (nome == null)
-                PetRepository.findAll().forEach(pets::add);
+                pets.addAll(PetRepository.findAll());
             else
-                PetRepository.findByNome(nome).forEach(pets::add);
+                pets.addAll(PetRepository.findByNome(nome));
 
             if (pets.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -53,11 +53,7 @@ public class PetController {
     public ResponseEntity<Pet> getPetById(@PathVariable("id") long id) {
         Optional<Pet> PetData = PetRepository.findById(id);
 
-        if (PetData.isPresent()) {
-            return new ResponseEntity<>(PetData.get(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return PetData.map(pet -> new ResponseEntity<>(pet, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping("/pets")

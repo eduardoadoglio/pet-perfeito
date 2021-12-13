@@ -32,12 +32,12 @@ public class OngController {
     @GetMapping("/ongs")
     public ResponseEntity<List<Ong>> getAllOngs(@RequestParam(required = false) String denominacao) {
         try {
-            List<Ong> ongs = new ArrayList<Ong>();
+            List<Ong> ongs = new ArrayList<>();
 
             if (denominacao == null)
-                ongRepository.findAll().forEach(ongs::add);
+                ongs.addAll(ongRepository.findAll());
             else
-                ongRepository.findByDenominacao(denominacao).forEach(ongs::add);
+                ongs.addAll(ongRepository.findByDenominacao(denominacao));
 
             if (ongs.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -53,11 +53,7 @@ public class OngController {
     public ResponseEntity<Ong> getOngById(@PathVariable("id") long id) {
         Optional<Ong> ongData = ongRepository.findById(id);
 
-        if (ongData.isPresent()) {
-            return new ResponseEntity<>(ongData.get(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return ongData.map(ong -> new ResponseEntity<>(ong, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping("/ongs")
