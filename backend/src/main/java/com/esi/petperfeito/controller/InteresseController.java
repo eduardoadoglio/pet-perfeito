@@ -35,7 +35,7 @@ public class InteresseController {
     @Autowired
     PetRepository petRepository;
 
-    @GetMapping("/interesses/{id}")
+    @GetMapping("/interesses/usuario/{id}")
     public ResponseEntity<Interesse> getInteressesByUsuario(@PathVariable("id") long id) {
         Usuario usuario = usuarioRepository.getById(id);
         Optional<Interesse> InteresseData = interesseRepository.findByUsuario(usuario);
@@ -43,7 +43,7 @@ public class InteresseController {
         return InteresseData.map(interesse -> new ResponseEntity<>(interesse, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @GetMapping("/interesses/{id}")
+    @GetMapping("/interesses/pet/{id}")
     public ResponseEntity<Interesse> getInteressesByPet(@PathVariable("id") long id) {
         Pet pet = petRepository.getById(id);
         Optional<Interesse> InteresseData = interesseRepository.findByPet(pet);
@@ -93,7 +93,7 @@ public class InteresseController {
         }
     }
 
-    @DeleteMapping("/interesses/{id}")
+    @DeleteMapping("/interesses/usuario/{id}")
     public ResponseEntity<HttpStatus> deleteInteressesByUsuario(@PathVariable("id") long id) {
         try {
             interesseRepository.deleteById(id);
@@ -103,7 +103,7 @@ public class InteresseController {
         }
     }
 
-    @DeleteMapping("/interesses/{id}")
+    @DeleteMapping("/interesses/pet/{id}")
     public ResponseEntity<HttpStatus> deleteInteressesByPet(@PathVariable("id") long id) {
         try {
             interesseRepository.deleteById(id);

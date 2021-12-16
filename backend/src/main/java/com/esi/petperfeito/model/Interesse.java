@@ -46,4 +46,12 @@ public class Interesse {
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
     }
+
+    @Override
+    public String toString() {
+        return "Interesse{" +
+                "pet=" + pet +
+                ", usuario=" + usuario +
+                '}';
+    }
 }
