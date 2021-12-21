@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,7 @@ public class UsuarioController {
     @Autowired
     UsuarioRepository usuarioRepository;
 
+    @Operation(summary = "Retorna todos os usuarios")
     @GetMapping("/users")
     public ResponseEntity<List<Usuario>> getAllUsers(@RequestParam(required = false) String nome) {
         try {
@@ -49,6 +51,7 @@ public class UsuarioController {
         }
     }
 
+    @Operation(summary = "Busca usuario por id")
     @GetMapping("/users/{id}")
     public ResponseEntity<Usuario> getUserById(@PathVariable("id") long id) {
         Optional<Usuario> usuarioData = usuarioRepository.findById(id);
@@ -56,6 +59,7 @@ public class UsuarioController {
         return usuarioData.map(usuario -> new ResponseEntity<>(usuario, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @Operation(summary = "Cria usuario")
     @PostMapping("/users")
     public ResponseEntity<Usuario> createUser(@RequestBody Usuario usuario) {
         try {
@@ -67,6 +71,7 @@ public class UsuarioController {
         }
     }
 
+    @Operation(summary = "Atualiza usuario")
     @PutMapping("/users/{id}")
     public ResponseEntity<Usuario> updateUser(@PathVariable("id") long id, @RequestBody Usuario usuario) {
         Optional<Usuario> usuarioData = usuarioRepository.findById(id);
@@ -84,6 +89,7 @@ public class UsuarioController {
         }
     }
 
+    @Operation(summary = "Deleta usuario")
     @DeleteMapping("/users/{id}")
     public ResponseEntity<HttpStatus> deleteUser(@PathVariable("id") long id) {
         try {
@@ -94,6 +100,7 @@ public class UsuarioController {
         }
     }
 
+    @Operation(summary = "Deleta todos os usuarios")
     @DeleteMapping("/users")
     public ResponseEntity<HttpStatus> deleteAllUsers() {
         try {

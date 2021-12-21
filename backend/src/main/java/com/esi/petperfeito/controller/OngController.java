@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,7 @@ public class OngController {
     @Autowired
     OngRepository ongRepository;
 
+    @Operation(summary = "Retorna todas as ongs")
     @GetMapping("/ongs")
     public ResponseEntity<List<Ong>> getAllOngs(@RequestParam(required = false) String denominacao) {
         try {
@@ -49,6 +51,7 @@ public class OngController {
         }
     }
 
+    @Operation(summary = "Busca ong por id")
     @GetMapping("/ongs/{id}")
     public ResponseEntity<Ong> getOngById(@PathVariable("id") long id) {
         Optional<Ong> ongData = ongRepository.findById(id);
@@ -56,6 +59,7 @@ public class OngController {
         return ongData.map(ong -> new ResponseEntity<>(ong, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @Operation(summary = "Cria ong")
     @PostMapping("/ongs")
     public ResponseEntity<Ong> createOng(@RequestBody Ong ong) {
         try {
@@ -67,6 +71,7 @@ public class OngController {
         }
     }
 
+    @Operation(summary = "Atualiza ong")
     @PutMapping("/ongs/{id}")
     public ResponseEntity<Ong> updateOng(@PathVariable("id") long id, @RequestBody Ong ong) {
         Optional<Ong> ongData = ongRepository.findById(id);
@@ -86,6 +91,7 @@ public class OngController {
         }
     }
 
+    @Operation(summary = "Deleta ong por id")
     @DeleteMapping("/ongs/{id}")
     public ResponseEntity<HttpStatus> deleteOng(@PathVariable("id") long id) {
         try {
@@ -96,6 +102,7 @@ public class OngController {
         }
     }
 
+    @Operation(summary = "Deleta todas as ongs")
     @DeleteMapping("/ongs")
     public ResponseEntity<HttpStatus> deleteAllOngs() {
         try {

@@ -1,10 +1,11 @@
 package com.esi.petperfeito.model;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "interesses")
-public class Interesse {
+public class Interesse implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

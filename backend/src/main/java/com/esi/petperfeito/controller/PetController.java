@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,7 @@ public class PetController {
     @Autowired
     PetRepository PetRepository;
 
+    @Operation(summary = "Retorna todos os pets no banco de dados")
     @GetMapping("/pets")
     public ResponseEntity<List<Pet>> getAllPets(@RequestParam(required = false) String nome) {
         try {
@@ -49,6 +51,7 @@ public class PetController {
         }
     }
 
+    @Operation(summary = "Busca pet por id")
     @GetMapping("/pets/{id}")
     public ResponseEntity<Pet> getPetById(@PathVariable("id") long id) {
         Optional<Pet> PetData = PetRepository.findById(id);
@@ -56,6 +59,7 @@ public class PetController {
         return PetData.map(pet -> new ResponseEntity<>(pet, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @Operation(summary = "Cria pet")
     @PostMapping("/pets")
     public ResponseEntity<Pet> createPet(@RequestBody Pet Pet) {
         try {
@@ -67,6 +71,7 @@ public class PetController {
         }
     }
 
+    @Operation(summary = "Atualiza pet")
     @PutMapping("/pets/{id}")
     public ResponseEntity<Pet> updatePet(@PathVariable("id") long id, @RequestBody Pet Pet) {
         Optional<Pet> PetData = PetRepository.findById(id);
@@ -84,6 +89,7 @@ public class PetController {
         }
     }
 
+    @Operation(summary = "Deleta pet por id")
     @DeleteMapping("/pets/{id}")
     public ResponseEntity<HttpStatus> deletePet(@PathVariable("id") long id) {
         try {
@@ -94,6 +100,7 @@ public class PetController {
         }
     }
 
+    @Operation(summary = "Deleta todos os pets do banco de dados")
     @DeleteMapping("/pets")
     public ResponseEntity<HttpStatus> deleteAllPets() {
         try {
