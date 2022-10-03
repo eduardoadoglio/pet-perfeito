@@ -64,7 +64,8 @@ public class InteresseController {
         return InteresseData.map(interesse -> new ResponseEntity<>(interesse, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @Operation(summary = "Cria interesse a partir de usuario e pet")
+    //TODO: Receber formulário de interesse
+    @Operation(summary = "Cadastra formulário de interesse em pet")
     @PostMapping("/interesses/{pet_id}/{user_id}")
     public ResponseEntity<Interesse> createInteresses(@PathVariable("pet_id") int pet_id, @PathVariable("user_id") int user_id) {
         try {

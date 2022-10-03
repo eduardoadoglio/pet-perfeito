@@ -12,7 +12,7 @@
 	<artifactId>pet-perfeito</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>pet-perfeito</name>
-	<description>EP desenvolvido para a materia ESI</description>
+	<description></description>
 	<properties>
 		<java.version>11</java.version>
 	</properties>
@@ -43,7 +43,7 @@
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-ui</artifactId>
-			<version>1.5.2</version>
+			<version>1.6.11</version>
 		</dependency>
 	</dependencies>
 

@@ -51,6 +51,8 @@ public class UsuarioController {
         }
     }
 
+    //TODO: Calcular nota do partcipante
+
     @Operation(summary = "Busca usuario por id")
     @GetMapping("/users/{id}")
     public ResponseEntity<Usuario> getUserById(@PathVariable("id") long id) {

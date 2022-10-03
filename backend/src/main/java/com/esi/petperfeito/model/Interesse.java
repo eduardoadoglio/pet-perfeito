@@ -19,6 +19,8 @@ public class Interesse implements Serializable {
     @JoinColumn(name = "usuarios", referencedColumnName = "id")
     private Usuario usuario;
 
+
+
     public Interesse(Pet pet, Usuario usuario) {
         this.pet = pet;
         this.usuario = usuario;
