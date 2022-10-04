@@ -12,10 +12,7 @@ PetPefeito
 
 First, [download](https://docs.oracle.com/goldengate/1212/gg-winux/GDRAD/java.htm#BGBFJHAB) and install **JRE**. Version `11` or higher is required.
 
-Installation is done by using the [Intellij's Community Edition IDE](https://www.jetbrains.com/idea/download/#section=linux) to download and install the project's dependencies.
-
-
-That's all you need to know to start! 🎉
+Dependencies download and installation is done by using the [Intellij's Community Edition IDE](https://www.jetbrains.com/idea/download/#section=linux). 🎉
 
 ###  🐳 Docker steps to quick start
 

@@ -19,11 +19,17 @@ public class Interesse implements Serializable {
     @JoinColumn(name = "usuarios", referencedColumnName = "id")
     private Usuario usuario;
 
+    @OneToOne
+    @JoinColumn(name = "interessesForm", referencedColumnName = "id")
+    private InteresseForm formulario;
 
+    @Column(name = "nota_usuario")
+    private int notaUsuario;
 
-    public Interesse(Pet pet, Usuario usuario) {
+    public Interesse(Pet pet, Usuario usuario, InteresseForm formulario) {
         this.pet = pet;
         this.usuario = usuario;
+        this.formulario = formulario;
     }
 
     public Interesse() {
@@ -50,11 +56,30 @@ public class Interesse implements Serializable {
         this.usuario = usuario;
     }
 
+    public InteresseForm getFormulario() {
+        return formulario;
+    }
+
+    public void setFormulario(InteresseForm formulario) {
+        this.formulario = formulario;
+    }
+
+    public void setNotaUsuario(int notaUsuario) {
+        this.notaUsuario = notaUsuario;
+    }
+
+    public int getNotaUsuario() {
+        return notaUsuario;
+    }
+
     @Override
     public String toString() {
         return "Interesse{" +
-                "pet=" + pet +
+                "id=" + id +
+                ", pet=" + pet +
                 ", usuario=" + usuario +
+                ", formulario=" + formulario +
+                ", notaUsuario=" + notaUsuario +
                 '}';
     }
 }

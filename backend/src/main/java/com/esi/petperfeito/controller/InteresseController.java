@@ -1,11 +1,13 @@
 package com.esi.petperfeito.controller;
 
 import com.esi.petperfeito.model.Interesse;
+import com.esi.petperfeito.model.InteresseForm;
 import com.esi.petperfeito.model.Pet;
 import com.esi.petperfeito.model.Usuario;
 import com.esi.petperfeito.repository.InteresseRepository;
 import com.esi.petperfeito.repository.PetRepository;
 import com.esi.petperfeito.repository.UsuarioRepository;
+import com.esi.petperfeito.service.InteresseService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,6 +33,9 @@ public class InteresseController {
 
     @Autowired
     InteresseRepository interesseRepository;
+
+    @Autowired
+    InteresseService interesseService;
 
     @Autowired
     UsuarioRepository usuarioRepository;
@@ -64,19 +69,34 @@ public class InteresseController {
         return InteresseData.map(interesse -> new ResponseEntity<>(interesse, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    //TODO: Receber formulário de interesse
     @Operation(summary = "Cadastra formulário de interesse em pet")
-    @PostMapping("/interesses/{pet_id}/{user_id}")
-    public ResponseEntity<Interesse> createInteresses(@PathVariable("pet_id") int pet_id, @PathVariable("user_id") int user_id) {
+    @PostMapping("/interesses/pet/{pet_id}/usuario/{user_id}")
+    public ResponseEntity<Interesse> createInteresses(@PathVariable("pet_id") int pet_id, @PathVariable("user_id") int user_id, @RequestBody InteresseForm interesseForm) {
+
+        Interesse interesse = new Interesse(
+                petRepository.getById((long) pet_id),
+                usuarioRepository.getById((long) user_id),
+                new InteresseForm(
+                        interesseForm.getPergunta1(),
+                        interesseForm.getPergunta2(),
+                        interesseForm.getPergunta3(),
+                        interesseForm.getPergunta4(),
+                        interesseForm.getPergunta5(),
+                        interesseForm.getPergunta6(),
+                        interesseForm.getPergunta7(),
+                        interesseForm.getPergunta8()
+                ));
+        interesseService.generateUserRating(interesse);
+
         try {
-            Interesse _Interesse = interesseRepository
-                    .save(new Interesse(petRepository.getById((long) pet_id), usuarioRepository.getById((long) user_id)));
+            Interesse _Interesse = interesseRepository.save(interesse);
             return new ResponseEntity<>(_Interesse, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    //TODO: fix
     @Operation(summary = "Atualiza interesse pelo id")
     @PutMapping("/interesses/{id}")
     public ResponseEntity<Interesse> updateInteresses(@PathVariable("id") long id, @RequestBody Interesse Interesse) {
@@ -86,7 +106,13 @@ public class InteresseController {
             Interesse _Interesse = InteresseData.get();
             _Interesse.setPet(Interesse.getPet());
             _Interesse.setUsuario(Interesse.getUsuario());
-            return new ResponseEntity<>(interesseRepository.save(_Interesse), HttpStatus.OK);
+            _Interesse.setFormulario(Interesse.getFormulario());
+            interesseService.generateUserRating(Interesse);
+            try {
+                return new ResponseEntity<>(interesseRepository.save(_Interesse), HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
