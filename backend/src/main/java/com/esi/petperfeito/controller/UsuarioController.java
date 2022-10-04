@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.esi.petperfeito.model.Usuario;
 import com.esi.petperfeito.repository.UsuarioRepository;
@@ -27,26 +29,35 @@ import com.esi.petperfeito.repository.UsuarioRepository;
 @RequestMapping("/api")
 public class UsuarioController {
 
+    private static final Logger logger = LoggerFactory.getLogger(InteresseController.class);
+
     @Autowired
     UsuarioRepository usuarioRepository;
 
     @Operation(summary = "Retorna todos os usuarios")
     @GetMapping("/users")
     public ResponseEntity<List<Usuario>> getAllUsers(@RequestParam(required = false) String nome) {
+
+        logger.info("Obtendo usuários cadastrados.");
+
         try {
             List<Usuario> users = new ArrayList<>();
 
             if (nome == null)
                 users.addAll(usuarioRepository.findAll());
             else
+                logger.info("Obtendo usuário "+nome);
                 users.addAll(usuarioRepository.findByNome(nome));
 
             if (users.isEmpty()) {
+                logger.warn("Nenhum usuário encontrado.");
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
 
             return new ResponseEntity<>(users, HttpStatus.OK);
         } catch (Exception e) {
+            logger.error("Erro ao obter usuarios.");
+            logger.error(String.valueOf(e));
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -54,6 +65,9 @@ public class UsuarioController {
     @Operation(summary = "Busca usuario por id")
     @GetMapping("/users/{id}")
     public ResponseEntity<Usuario> getUserById(@PathVariable("id") long id) {
+
+        logger.info("Buscando usuário de id "+id);
+
         Optional<Usuario> usuarioData = usuarioRepository.findById(id);
 
         return usuarioData.map(usuario -> new ResponseEntity<>(usuario, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -62,11 +76,16 @@ public class UsuarioController {
     @Operation(summary = "Cria usuario")
     @PostMapping("/users")
     public ResponseEntity<Usuario> createUser(@RequestBody Usuario usuario) {
+
+        logger.info("Cadastrando usuário "+usuario.getNome());
+
         try {
             Usuario _usuario = usuarioRepository
                     .save(new Usuario(usuario.getNome(), usuario.getCpf(), usuario.getTelefone(), usuario.getCep(), usuario.getDataNascimento()));
             return new ResponseEntity<>(_usuario, HttpStatus.CREATED);
         } catch (Exception e) {
+            logger.error("Erro ao cadastrar usuário "+usuario.getNome());
+            logger.error(String.valueOf(e));
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -74,6 +93,9 @@ public class UsuarioController {
     @Operation(summary = "Atualiza usuario")
     @PutMapping("/users/{id}")
     public ResponseEntity<Usuario> updateUser(@PathVariable("id") long id, @RequestBody Usuario usuario) {
+
+        logger.info("Atualizando cadastro do usuário "+id);
+
         Optional<Usuario> usuarioData = usuarioRepository.findById(id);
 
         if (usuarioData.isPresent()) {
@@ -85,6 +107,7 @@ public class UsuarioController {
             _usuario.setDataNascimento(usuario.getDataNascimento());
             return new ResponseEntity<>(usuarioRepository.save(_usuario), HttpStatus.OK);
         } else {
+            logger.error("Erro ao atualizar cadastro do usuário "+id+", não encontrado.");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -92,24 +115,17 @@ public class UsuarioController {
     @Operation(summary = "Deleta usuario")
     @DeleteMapping("/users/{id}")
     public ResponseEntity<HttpStatus> deleteUser(@PathVariable("id") long id) {
+
+        logger.info("Deletando cadastro do usuário "+id);
+
         try {
             usuarioRepository.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
+            logger.error("Erro ao remover usuário "+id);
+            logger.error(String.valueOf(e));
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    @Operation(summary = "Deleta todos os usuarios")
-    @DeleteMapping("/users")
-    public ResponseEntity<HttpStatus> deleteAllUsers() {
-        try {
-            usuarioRepository.deleteAll();
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
     }
 
 }

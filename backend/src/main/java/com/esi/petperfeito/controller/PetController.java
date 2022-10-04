@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.esi.petperfeito.model.Pet;
 import com.esi.petperfeito.repository.PetRepository;
@@ -27,12 +29,17 @@ import com.esi.petperfeito.repository.PetRepository;
 @RequestMapping("/api")
 public class PetController {
 
+    private static final Logger logger = LoggerFactory.getLogger(InteresseController.class);
+
     @Autowired
     PetRepository PetRepository;
 
     @Operation(summary = "Retorna todos os pets no banco de dados")
     @GetMapping("/pets")
     public ResponseEntity<List<Pet>> getAllPets(@RequestParam(required = false) String nome) {
+
+        logger.info("Obtendo lista de pets cadastrados");
+
         try {
             List<Pet> pets = new ArrayList<>();
 
@@ -42,11 +49,14 @@ public class PetController {
                 pets.addAll(PetRepository.findByNome(nome));
 
             if (pets.isEmpty()) {
+                logger.error("Nenhum pet encontrado no banco de dados.");
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
 
             return new ResponseEntity<>(pets, HttpStatus.OK);
         } catch (Exception e) {
+            logger.error("Erro ao retornar todos os pets.");
+            logger.error(""+e);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -54,6 +64,9 @@ public class PetController {
     @Operation(summary = "Busca pet por id")
     @GetMapping("/pets/{id}")
     public ResponseEntity<Pet> getPetById(@PathVariable("id") long id) {
+
+        logger.info("Obtendo pet de id "+id);
+
         Optional<Pet> PetData = PetRepository.findById(id);
 
         return PetData.map(pet -> new ResponseEntity<>(pet, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -62,11 +75,16 @@ public class PetController {
     @Operation(summary = "Cria pet")
     @PostMapping("/pets")
     public ResponseEntity<Pet> createPet(@RequestBody Pet Pet) {
+
+        logger.info("Criando pet "+Pet.getNome());
+
         try {
             Pet _Pet = PetRepository
                     .save(new Pet(Pet.getNome(), Pet.getDescricao(), Pet.getEspecie(), Pet.getSexo(), Pet.getDataNascimento()));
             return new ResponseEntity<>(_Pet, HttpStatus.CREATED);
         } catch (Exception e) {
+            logger.error("Erro ao criar pet "+Pet.getNome());
+            logger.error(""+e);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -74,6 +92,9 @@ public class PetController {
     @Operation(summary = "Atualiza pet")
     @PutMapping("/pets/{id}")
     public ResponseEntity<Pet> updatePet(@PathVariable("id") long id, @RequestBody Pet Pet) {
+
+        logger.info("Atualizando pet "+Pet.getId());
+
         Optional<Pet> PetData = PetRepository.findById(id);
 
         if (PetData.isPresent()) {
@@ -85,6 +106,7 @@ public class PetController {
             _Pet.setDataNascimento(Pet.getDataNascimento());
             return new ResponseEntity<>(PetRepository.save(_Pet), HttpStatus.OK);
         } else {
+            logger.error("Pet "+Pet.getId()+" não encontrado.");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -92,24 +114,17 @@ public class PetController {
     @Operation(summary = "Deleta pet por id")
     @DeleteMapping("/pets/{id}")
     public ResponseEntity<HttpStatus> deletePet(@PathVariable("id") long id) {
+
+        logger.info("Deletando pet "+id);
+
         try {
             PetRepository.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
+            logger.error("Erro ao deletar pet "+id);
+            logger.error(""+e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    @Operation(summary = "Deleta todos os pets do banco de dados")
-    @DeleteMapping("/pets")
-    public ResponseEntity<HttpStatus> deleteAllPets() {
-        try {
-            PetRepository.deleteAll();
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
     }
 
 }

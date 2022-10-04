@@ -54,6 +54,8 @@ public class InteresseController {
     @GetMapping("/interesses/usuario/{id}")
     public ResponseEntity<List<Interesse>> getInteressesByUsuario(@PathVariable("id") long id) {
 
+        logger.info("Obtendo interesses do usuário "+id);
+
         Usuario usuario = new Usuario();
 
         try {
@@ -64,7 +66,6 @@ public class InteresseController {
         }
 
         try {
-            logger.info("Obtendo interesses do usuário "+id);
             List<Interesse> InteresseData = new ArrayList<>(interesseRepository.findByUsuario(usuario));
             return new ResponseEntity<>(InteresseData, HttpStatus.OK);
         }catch (Exception e) {
@@ -78,17 +79,19 @@ public class InteresseController {
     @GetMapping("/interesses/pet/{id}")
     public ResponseEntity<List<Interesse>> getInteressesByPet(@PathVariable("id") long id) {
 
+        logger.info("Obtendo interesses do pet "+id);
+
         Pet pet = new Pet();
 
         try {
             pet = petRepository.getById(id);
         } catch (Exception e) {
-            logger.error("Pet de id "+id+" não encontrado no banco de dados.");
+            logger.warn("Pet de id "+id+" não encontrado no banco de dados.");
+            logger.error("Erro: "+e);
             new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         try {
-            logger.info("Obtendo interesses do pet "+id);
             List<Interesse> InteresseData = new ArrayList<>(interesseRepository.findByPet(pet));
             return new ResponseEntity<>(InteresseData, HttpStatus.OK);
         }catch (Exception e) {
@@ -102,6 +105,8 @@ public class InteresseController {
     @GetMapping("/interesses/{id}")
     public ResponseEntity<Interesse> getInteressesById(@PathVariable("id") long id) {
 
+        logger.info("Obtendo interesse "+id);
+
         Optional<Interesse> InteresseData = interesseRepository.findById(id);
 
         return InteresseData.map(interesse -> new ResponseEntity<>(interesse, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -110,6 +115,8 @@ public class InteresseController {
     @Operation(summary = "Cadastra formulário de interesse em pet")
     @PostMapping("/interesses/pet/{pet_id}/usuario/{user_id}")
     public ResponseEntity<Interesse> createInteresses(@PathVariable("pet_id") int pet_id, @PathVariable("user_id") int user_id, @RequestBody InteresseForm interesseForm) {
+
+        logger.info("Registrando interesse do usuário "+user_id+" no pet "+pet_id);
 
         InteresseForm form = new InteresseForm();
 
@@ -145,6 +152,9 @@ public class InteresseController {
     @Operation(summary = "Deleta interesse pelo id")
     @DeleteMapping("/interesses/{id}")
     public ResponseEntity<HttpStatus> deleteInteressesById(@PathVariable("id") long id) {
+
+        logger.info("Deletando interesse de id "+id);
+
         try {
             interesseRepository.deleteById(id);
             return new ResponseEntity<>(HttpStatus.OK);
@@ -158,6 +168,7 @@ public class InteresseController {
     @Operation(summary = "Deleta todos os interesses do usuario")
     @DeleteMapping("/interesses/usuario/{id}")
     public ResponseEntity<HttpStatus> deleteInteressesByUsuario(@PathVariable("id") long id) {
+        logger.info("Deletando todos os interesse do usuário "+id);
         try {
             interesseRepository.deleteById(id);
             return new ResponseEntity<>(HttpStatus.OK);
@@ -171,6 +182,7 @@ public class InteresseController {
     @Operation(summary = "Deleta todos os interesses do pet")
     @DeleteMapping("/interesses/pet/{id}")
     public ResponseEntity<HttpStatus> deleteInteressesByPet(@PathVariable("id") long id) {
+        logger.info("Deletando todos os interesse do pet "+id);
         try {
             interesseRepository.deleteById(id);
             return new ResponseEntity<>(HttpStatus.OK);
