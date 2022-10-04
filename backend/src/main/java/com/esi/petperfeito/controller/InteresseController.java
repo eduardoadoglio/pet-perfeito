@@ -4,6 +4,7 @@ import com.esi.petperfeito.model.Interesse;
 import com.esi.petperfeito.model.InteresseForm;
 import com.esi.petperfeito.model.Pet;
 import com.esi.petperfeito.model.Usuario;
+import com.esi.petperfeito.repository.InteresseFormRepository;
 import com.esi.petperfeito.repository.InteresseRepository;
 import com.esi.petperfeito.repository.PetRepository;
 import com.esi.petperfeito.repository.UsuarioRepository;
@@ -17,10 +18,11 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,8 +33,13 @@ import java.util.Optional;
 @RequestMapping("/api")
 public class InteresseController {
 
+    private static final Logger logger = LoggerFactory.getLogger(InteresseController.class);
+
     @Autowired
     InteresseRepository interesseRepository;
+
+    @Autowired
+    InteresseFormRepository interesseFormRepository;
 
     @Autowired
     InteresseService interesseService;
@@ -46,24 +53,55 @@ public class InteresseController {
     @Operation(summary = "Retorna interesses do usuario")
     @GetMapping("/interesses/usuario/{id}")
     public ResponseEntity<List<Interesse>> getInteressesByUsuario(@PathVariable("id") long id) {
-        Usuario usuario = usuarioRepository.getById(id);
-        List<Interesse> InteresseData = new ArrayList<>(interesseRepository.findByUsuario(usuario));
 
-        return new ResponseEntity<>(InteresseData, HttpStatus.OK);
+        Usuario usuario = new Usuario();
+
+        try {
+            usuario = usuarioRepository.getById(id);
+        } catch (Exception e) {
+            logger.error("Usuário de id "+id+" não encontrado no banco de dados.");
+            new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        try {
+            logger.info("Obtendo interesses do usuário "+id);
+            List<Interesse> InteresseData = new ArrayList<>(interesseRepository.findByUsuario(usuario));
+            return new ResponseEntity<>(InteresseData, HttpStatus.OK);
+        }catch (Exception e) {
+            logger.error("Erro ao obter interesses do usuário "+id);
+            logger.error(String.valueOf(e));
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Operation(summary = "Retorna interesses do pet")
     @GetMapping("/interesses/pet/{id}")
     public ResponseEntity<List<Interesse>> getInteressesByPet(@PathVariable("id") long id) {
-        Pet pet = petRepository.getById(id);
-        List<Interesse> InteresseData = new ArrayList<>(interesseRepository.findByPet(pet));
 
-        return new ResponseEntity<>(InteresseData, HttpStatus.OK);
+        Pet pet = new Pet();
+
+        try {
+            pet = petRepository.getById(id);
+        } catch (Exception e) {
+            logger.error("Pet de id "+id+" não encontrado no banco de dados.");
+            new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        try {
+            logger.info("Obtendo interesses do pet "+id);
+            List<Interesse> InteresseData = new ArrayList<>(interesseRepository.findByPet(pet));
+            return new ResponseEntity<>(InteresseData, HttpStatus.OK);
+        }catch (Exception e) {
+            logger.error("Erro ao obter interesses do pet "+id);
+            logger.error(String.valueOf(e));
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Operation(summary = "Busca interesse por id")
     @GetMapping("/interesses/{id}")
     public ResponseEntity<Interesse> getInteressesById(@PathVariable("id") long id) {
+
         Optional<Interesse> InteresseData = interesseRepository.findById(id);
 
         return InteresseData.map(interesse -> new ResponseEntity<>(interesse, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -73,48 +111,34 @@ public class InteresseController {
     @PostMapping("/interesses/pet/{pet_id}/usuario/{user_id}")
     public ResponseEntity<Interesse> createInteresses(@PathVariable("pet_id") int pet_id, @PathVariable("user_id") int user_id, @RequestBody InteresseForm interesseForm) {
 
+        InteresseForm form = new InteresseForm();
+
+        try {
+            form = interesseFormRepository.save(interesseForm);
+        } catch (Exception e) {
+            logger.error("Erro ao tentar salvar formulário de interesse "+interesseForm.getId());
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
         Interesse interesse = new Interesse(
                 petRepository.getById((long) pet_id),
                 usuarioRepository.getById((long) user_id),
-                new InteresseForm(
-                        interesseForm.getPergunta1(),
-                        interesseForm.getPergunta2(),
-                        interesseForm.getPergunta3(),
-                        interesseForm.getPergunta4(),
-                        interesseForm.getPergunta5(),
-                        interesseForm.getPergunta6(),
-                        interesseForm.getPergunta7(),
-                        interesseForm.getPergunta8()
-                ));
-        interesseService.generateUserRating(interesse);
+                form);
+
+        try {
+            interesseService.generateUserRating(interesse);
+        } catch (Exception e) {
+            logger.error("Erro ao calcular pontos do usuário "+user_id);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
         try {
             Interesse _Interesse = interesseRepository.save(interesse);
             return new ResponseEntity<>(_Interesse, HttpStatus.CREATED);
         } catch (Exception e) {
+            logger.error("Erro ao registrar interesse do usuario "+user_id+" no pet "+pet_id);
+            logger.error(String.valueOf(e));
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    //TODO: fix
-    @Operation(summary = "Atualiza interesse pelo id")
-    @PutMapping("/interesses/{id}")
-    public ResponseEntity<Interesse> updateInteresses(@PathVariable("id") long id, @RequestBody Interesse Interesse) {
-        Optional<Interesse> InteresseData = interesseRepository.findById(id);
-
-        if (InteresseData.isPresent()) {
-            Interesse _Interesse = InteresseData.get();
-            _Interesse.setPet(Interesse.getPet());
-            _Interesse.setUsuario(Interesse.getUsuario());
-            _Interesse.setFormulario(Interesse.getFormulario());
-            interesseService.generateUserRating(Interesse);
-            try {
-                return new ResponseEntity<>(interesseRepository.save(_Interesse), HttpStatus.OK);
-            } catch (Exception e) {
-                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -123,8 +147,10 @@ public class InteresseController {
     public ResponseEntity<HttpStatus> deleteInteressesById(@PathVariable("id") long id) {
         try {
             interesseRepository.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
+            logger.error("Erro ao deletar interesse de id "+id);
+            logger.error(String.valueOf(e));
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -134,8 +160,10 @@ public class InteresseController {
     public ResponseEntity<HttpStatus> deleteInteressesByUsuario(@PathVariable("id") long id) {
         try {
             interesseRepository.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
+            logger.error("Erro ao deletar interesses do usuario "+id);
+            logger.error(String.valueOf(e));
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -145,22 +173,12 @@ public class InteresseController {
     public ResponseEntity<HttpStatus> deleteInteressesByPet(@PathVariable("id") long id) {
         try {
             interesseRepository.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
+            logger.error("Erro ao deletar interesses do pet "+id);
+            logger.error(String.valueOf(e));
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    @Operation(summary = "Deleta todos os interesses do banco de dados")
-    @DeleteMapping("/interesses")
-    public ResponseEntity<HttpStatus> deleteAllInteresses() {
-        try {
-            interesseRepository.deleteAll();
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
     }
 
 }

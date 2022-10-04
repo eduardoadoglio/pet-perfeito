@@ -2,17 +2,12 @@ package com.esi.petperfeito.service;
 
 import com.esi.petperfeito.model.Interesse;
 import com.esi.petperfeito.model.InteresseForm;
-import com.esi.petperfeito.repository.InteresseRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class InteresseService {
 
-    @Autowired
-    private InteresseRepository interesseRepository;
-
-    //total de pontos -> 160
+    //total de pontos -> 16
 
     private int[] weights = new int[]{3, 2, 1, 2, 2, 1, 3, 2};
     private int totalWeight= 16;

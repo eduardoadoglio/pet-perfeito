@@ -18,6 +18,9 @@ public class InteresseForm implements Serializable {
         this.pergunta8 = pergunta8;
     }
 
+    public InteresseForm() {
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;

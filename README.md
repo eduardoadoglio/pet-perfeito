@@ -27,3 +27,37 @@ docker compose up
 ##  📖 API Docs
 
 The best way to better explore all the features of the **PetPefeito' backend** is  using the OpenAPI 3.0 that's implemente in the code. For that, run the project and access [this URL](http://localhost:8080/docs/).
+
+## Questions for Interest form:
+
+Cachorro
+
+As respostas devem ser um valor entre 0~10, podendo ser estipulado pelos devs do front-end
+- Exemplos: 
+- Tem experiência com cachorros? a) Sim (10 pontos) b) Não (0 pontos)
+- Em que faixa está sua renda? a) 0~2k (0 pontos)  b) 2k~5k (3 pontos)  c) 5k~10k (6 pontos)  d) 10k+ (10 pontos)
+
+
+1. Tem experiência com cachorros? 
+   (Peso: 3)
+
+2. Mora em casa ou apartamento?
+   (Peso: 2)
+
+3. Já possui os materiais necessários para receber o cachorro? (coleira, casinha, etc)
+   (Peso: 1)
+
+4. Existem outros animais na casa?
+   (Peso: 2)
+
+5. Tem filhos?
+   (Peso: 2)
+
+6. Qual o clima do local onde reside? (quente, frio, meio-termo)
+   (Peso: 1)
+
+7. Possui emprego?
+   (Peso: 3)
+
+8. Em que faixa está sua renda? (0~2k, 2k~5k, 5k~10k, 10k+)
+   (Peso: 2)

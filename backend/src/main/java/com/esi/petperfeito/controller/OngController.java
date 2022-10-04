@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.esi.petperfeito.model.Ong;
 import com.esi.petperfeito.repository.OngRepository;
@@ -26,6 +28,8 @@ import com.esi.petperfeito.repository.OngRepository;
 @RestController
 @RequestMapping("/api")
 public class OngController {
+
+    private static final Logger logger = LoggerFactory.getLogger(InteresseController.class);
 
     @Autowired
     OngRepository ongRepository;
