@@ -46,6 +46,10 @@ public class Ong implements Serializable {
         this.dataFundacao = dataFundacao;
     }
 
+    public long getId() {
+        return id;
+    }
+
     public String getDenominacao() {
         return denominacao;
     }
