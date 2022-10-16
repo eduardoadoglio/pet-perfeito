@@ -1,8 +1,11 @@
 package com.esi.petperfeito.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
 @Table(name = "interessesForm")
 public class InteresseForm implements Serializable {
