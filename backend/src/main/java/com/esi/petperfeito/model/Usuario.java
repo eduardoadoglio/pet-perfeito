@@ -29,16 +29,21 @@ public class Usuario implements Serializable {
     @Column(name = "data_nascimento")
     private String dataNascimento;
 
+    @OneToOne
+    @JoinColumn(name = "interessesForm", referencedColumnName = "id")
+    private Avaliacao avaliacao;
+
     public Usuario() {
 
     }
 
-    public Usuario(String nome, String cpf, String telefone, String cep, String dataNascimento) {
+    public Usuario(String nome, String cpf, String telefone, String cep, String dataNascimento, Avaliacao avaliacao) {
         this.nome = nome;
         this.cpf = cpf;
         this.telefone = telefone;
         this.cep = cep;
         this.dataNascimento = dataNascimento;
+        this.avaliacao = avaliacao;
     }
 
     public String getNome() {
@@ -85,6 +90,13 @@ public class Usuario implements Serializable {
         return id;
     }
 
+    public Avaliacao getAvaliacao() {
+        return avaliacao;
+    }
+
+    public void setAvaliacao(Avaliacao avaliacao) {
+        this.avaliacao = avaliacao;
+    }
 
     @Override
     public String toString() {

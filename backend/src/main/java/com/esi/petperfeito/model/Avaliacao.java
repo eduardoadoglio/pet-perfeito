@@ -7,10 +7,10 @@ import java.io.Serializable;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
-@Table(name = "interessesForm")
-public class InteresseForm implements Serializable {
+@Table(name = "avaliacao")
+public class Avaliacao implements Serializable {
 
-    public InteresseForm(int pergunta1, int pergunta2, int pergunta3, int pergunta4, int pergunta5, int pergunta6, int pergunta7, int pergunta8) {
+    public Avaliacao(int pergunta1, int pergunta2, int pergunta3, int pergunta4, int pergunta5, int pergunta6, int pergunta7, int pergunta8) {
         this.pergunta1 = pergunta1;
         this.pergunta2 = pergunta2;
         this.pergunta3 = pergunta3;
@@ -21,7 +21,7 @@ public class InteresseForm implements Serializable {
         this.pergunta8 = pergunta8;
     }
 
-    public InteresseForm() {
+    public Avaliacao() {
     }
 
     @Id

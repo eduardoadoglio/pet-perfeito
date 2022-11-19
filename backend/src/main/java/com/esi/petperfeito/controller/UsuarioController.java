@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.esi.petperfeito.model.Avaliacao;
+import com.esi.petperfeito.repository.AvaliacaoRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,6 +35,9 @@ public class UsuarioController {
 
     @Autowired
     UsuarioRepository usuarioRepository;
+
+    @Autowired
+    AvaliacaoRepository avaliacaoRepository;
 
     @Operation(summary = "Retorna todos os usuarios")
     @GetMapping("/users")
@@ -75,13 +80,29 @@ public class UsuarioController {
 
     @Operation(summary = "Cria usuario")
     @PostMapping("/users")
-    public ResponseEntity<Usuario> createUser(@RequestBody Usuario usuario) {
+    public ResponseEntity<Usuario> createUser(@RequestBody Usuario usuario, @RequestBody Avaliacao avaliacao) {
 
         logger.info("Cadastrando usuário "+usuario.getNome());
 
+        Avaliacao form = new Avaliacao();
+
+        try {
+            form = avaliacaoRepository.save(avaliacao);
+        } catch (Exception e) {
+            logger.error("Erro ao tentar salvar avaliação "+avaliacao.getId());
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
         try {
             Usuario _usuario = usuarioRepository
-                    .save(new Usuario(usuario.getNome(), usuario.getCpf(), usuario.getTelefone(), usuario.getCep(), usuario.getDataNascimento()));
+                    .save(new Usuario(
+                            usuario.getNome(),
+                            usuario.getCpf(),
+                            usuario.getTelefone(),
+                            usuario.getCep(),
+                            usuario.getDataNascimento(),
+                            form
+                    ));
             return new ResponseEntity<>(_usuario, HttpStatus.CREATED);
         } catch (Exception e) {
             logger.error("Erro ao cadastrar usuário "+usuario.getNome());
@@ -99,13 +120,21 @@ public class UsuarioController {
         Optional<Usuario> usuarioData = usuarioRepository.findById(id);
 
         if (usuarioData.isPresent()) {
-            Usuario _usuario = usuarioData.get();
-            _usuario.setNome(usuario.getNome());
-            _usuario.setCpf(usuario.getCpf());
-            _usuario.setTelefone(usuario.getTelefone());
-            _usuario.setCep(usuario.getCep());
-            _usuario.setDataNascimento(usuario.getDataNascimento());
-            return new ResponseEntity<>(usuarioRepository.save(_usuario), HttpStatus.OK);
+            try {
+                Usuario _usuario = usuarioData.get();
+                _usuario.setNome(usuario.getNome());
+                _usuario.setCpf(usuario.getCpf());
+                _usuario.setTelefone(usuario.getTelefone());
+                _usuario.setCep(usuario.getCep());
+                _usuario.setDataNascimento(usuario.getDataNascimento());
+                _usuario.setAvaliacao(usuario.getAvaliacao());
+                return new ResponseEntity<>(usuarioRepository.save(_usuario), HttpStatus.OK);
+            }
+            catch (Exception e){
+                logger.error("Erro ao atualizar dados do usuario "+usuario.getNome());
+                logger.error(String.valueOf(e));
+                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         } else {
             logger.error("Erro ao atualizar cadastro do usuário "+id+", não encontrado.");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
