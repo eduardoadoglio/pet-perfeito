@@ -1,10 +1,10 @@
 package com.esi.petperfeito.controller;
 
 import com.esi.petperfeito.model.Interesse;
-import com.esi.petperfeito.model.InteresseForm;
+import com.esi.petperfeito.model.Avaliacao;
 import com.esi.petperfeito.model.Pet;
 import com.esi.petperfeito.model.Usuario;
-import com.esi.petperfeito.repository.InteresseFormRepository;
+import com.esi.petperfeito.repository.AvaliacaoRepository;
 import com.esi.petperfeito.repository.InteresseRepository;
 import com.esi.petperfeito.repository.PetRepository;
 import com.esi.petperfeito.repository.UsuarioRepository;
@@ -39,7 +39,7 @@ public class InteresseController {
     InteresseRepository interesseRepository;
 
     @Autowired
-    InteresseFormRepository interesseFormRepository;
+    AvaliacaoRepository avaliacaoRepository;
 
     @Autowired
     InteresseService interesseService;
@@ -114,26 +114,17 @@ public class InteresseController {
 
     @Operation(summary = "Cadastra formulário de interesse em pet")
     @PostMapping("/interesses/pet/{pet_id}/usuario/{user_id}")
-    public ResponseEntity<Interesse> createInteresses(@PathVariable("pet_id") int pet_id, @PathVariable("user_id") int user_id, @RequestBody InteresseForm interesseForm) {
+    public ResponseEntity<Interesse> createInteresses(@PathVariable("pet_id") int pet_id, @PathVariable("user_id") int user_id) {
 
         logger.info("Registrando interesse do usuário "+user_id+" no pet "+pet_id);
 
-        InteresseForm form = new InteresseForm();
+        Usuario usuario = usuarioRepository.getById((long) user_id);
+        Pet pet = petRepository.getById((long) pet_id);
+        Avaliacao avaliacao = avaliacaoRepository.getById(usuario.getAvaliacao().getId());
+        Interesse interesse = new Interesse(pet, usuario);
 
         try {
-            form = interesseFormRepository.save(interesseForm);
-        } catch (Exception e) {
-            logger.error("Erro ao tentar salvar formulário de interesse "+interesseForm.getId());
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        Interesse interesse = new Interesse(
-                petRepository.getById((long) pet_id),
-                usuarioRepository.getById((long) user_id),
-                form);
-
-        try {
-            interesseService.generateUserRating(interesse);
+            interesseService.generateUserRating(pet, avaliacao, interesse);
         } catch (Exception e) {
             logger.error("Erro ao calcular pontos do usuário "+user_id);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);

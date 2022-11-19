@@ -80,7 +80,22 @@ public class PetController {
 
         try {
             Pet _Pet = PetRepository
-                    .save(new Pet(Pet.getNome(), Pet.getDescricao(), Pet.getEspecie(), Pet.getSexo(), Pet.getDataNascimento()));
+                    .save(new Pet(
+                            Pet.getNome(),
+                            Pet.getDescricao(),
+                            Pet.getEspecie(),
+                            Pet.getRaca(),
+                            Pet.getSexo(),
+                            Pet.getDataNascimento(),
+                            Pet.getPeso1(),
+                            Pet.getPeso2(),
+                            Pet.getPeso3(),
+                            Pet.getPeso4(),
+                            Pet.getPeso5(),
+                            Pet.getPeso6(),
+                            Pet.getPeso7(),
+                            Pet.getPeso8()
+                    ));
             return new ResponseEntity<>(_Pet, HttpStatus.CREATED);
         } catch (Exception e) {
             logger.error("Erro ao criar pet "+Pet.getNome());
@@ -102,8 +117,17 @@ public class PetController {
             _Pet.setNome(Pet.getNome());
             _Pet.setDescricao(Pet.getDescricao());
             _Pet.setEspecie(Pet.getEspecie());
+            _Pet.setRaca(Pet.getRaca());
             _Pet.setSexo(Pet.getSexo());
             _Pet.setDataNascimento(Pet.getDataNascimento());
+            _Pet.setPeso1(Pet.getPeso1());
+            _Pet.setPeso2(Pet.getPeso2());
+            _Pet.setPeso3(Pet.getPeso3());
+            _Pet.setPeso4(Pet.getPeso4());
+            _Pet.setPeso5(Pet.getPeso5());
+            _Pet.setPeso6(Pet.getPeso6());
+            _Pet.setPeso7(Pet.getPeso7());
+            _Pet.setPeso8(Pet.getPeso8());
             return new ResponseEntity<>(PetRepository.save(_Pet), HttpStatus.OK);
         } else {
             logger.error("Pet "+Pet.getId()+" não encontrado.");

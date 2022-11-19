@@ -1,33 +1,46 @@
 package com.esi.petperfeito.service;
 
 import com.esi.petperfeito.model.Interesse;
-import com.esi.petperfeito.model.InteresseForm;
+import com.esi.petperfeito.model.Avaliacao;
+import com.esi.petperfeito.model.Pet;
 import org.springframework.stereotype.Service;
 
 @Service
 public class InteresseService {
 
-    //total de pontos -> 16
+    public void generateUserRating(Pet pet, Avaliacao avaliacao, Interesse interesse) {
 
-    private int[] weights = new int[]{3, 2, 1, 2, 2, 1, 3, 2};
-    private int totalWeight= 16;
+        int[] weights = collectPetWeights(pet);
+        int totalWeights = 0;
 
-    public void generateUserRating(Interesse interesse) {
-
-        InteresseForm form = interesse.getFormulario();
-        String[] results = (form.toString()).split(",");
+        String[] results = (avaliacao.toString()).split(",");
 
         int notaFinal = 0;
         int notaParcial = 0;
 
         for (int i = 0; i<8; i++){
             notaParcial += Integer.parseInt(results[i]) * weights[i];
+            totalWeights += weights[i];
         }
 
-        notaFinal = notaParcial / totalWeight;
-
+        notaFinal = notaParcial / totalWeights;
         interesse.setNotaUsuario(notaFinal);
 
+    }
+
+    private int[] collectPetWeights(Pet pet) {
+        int[] weights = new int[8];
+
+        weights[0] = pet.getPeso1();
+        weights[1] = pet.getPeso2();
+        weights[2] = pet.getPeso3();
+        weights[3] = pet.getPeso4();
+        weights[4] = pet.getPeso5();
+        weights[5] = pet.getPeso6();
+        weights[6] = pet.getPeso7();
+        weights[7] = pet.getPeso8();
+
+        return weights;
     }
 
 }
