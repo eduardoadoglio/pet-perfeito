@@ -41,18 +41,13 @@ public class UsuarioController {
 
     @Operation(summary = "Retorna todos os usuarios")
     @GetMapping("/users")
-    public ResponseEntity<List<Usuario>> getAllUsers(@RequestParam(required = false) String nome) {
+    public ResponseEntity<List<Usuario>> getAllUsers() {
 
         logger.info("Obtendo usuários cadastrados.");
 
         try {
             List<Usuario> users = new ArrayList<>();
-
-            if (nome == null)
-                users.addAll(usuarioRepository.findAll());
-            else
-                logger.info("Obtendo usuário "+nome);
-                users.addAll(usuarioRepository.findByNome(nome));
+            users.addAll(usuarioRepository.findAll());
 
             if (users.isEmpty()) {
                 logger.warn("Nenhum usuário encontrado.");

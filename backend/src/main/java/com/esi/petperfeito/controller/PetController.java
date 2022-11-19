@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.esi.petperfeito.model.Ong;
+import com.esi.petperfeito.repository.OngRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,7 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,21 +33,20 @@ public class PetController {
     private static final Logger logger = LoggerFactory.getLogger(InteresseController.class);
 
     @Autowired
-    PetRepository PetRepository;
+    PetRepository petRepository;
+
+    @Autowired
+    OngRepository ongRepository;
 
     @Operation(summary = "Retorna todos os pets no banco de dados")
     @GetMapping("/pets")
-    public ResponseEntity<List<Pet>> getAllPets(@RequestParam(required = false) String nome) {
+    public ResponseEntity<List<Pet>> getAllPets() {
 
         logger.info("Obtendo lista de pets cadastrados");
 
         try {
             List<Pet> pets = new ArrayList<>();
-
-            if (nome == null)
-                pets.addAll(PetRepository.findAll());
-            else
-                pets.addAll(PetRepository.findByNome(nome));
+            pets.addAll(petRepository.findAll());
 
             if (pets.isEmpty()) {
                 logger.error("Nenhum pet encontrado no banco de dados.");
@@ -61,13 +61,42 @@ public class PetController {
         }
     }
 
+    @Operation(summary = "Busca pets por ong")
+    @GetMapping("/pets/ong/{id}")
+    public ResponseEntity<List<Pet>> getPetByOngId(@PathVariable("id") long id) {
+
+        logger.info("Obtendo pets da Ong de Id "+id);
+
+        Optional<Ong> ongData = ongRepository.findById(id);
+
+        if (ongData.isPresent()) {
+            Ong ong = ongData.get();
+            try {
+                List<Pet> pets = petRepository.findByOng(ong);
+                if (pets.isEmpty()) {
+                    logger.error("Nenhum pet encontrado no banco de dados.");
+                    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                }
+                return new ResponseEntity<>(pets, HttpStatus.OK);
+            }
+            catch (Exception e){
+                logger.error("Erro ao retornar todos os pets da Ong "+id);
+                logger.error(""+e);
+                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            logger.error("Ong "+id+" não encontrada.");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @Operation(summary = "Busca pet por id")
     @GetMapping("/pets/{id}")
     public ResponseEntity<Pet> getPetById(@PathVariable("id") long id) {
 
         logger.info("Obtendo pet de id "+id);
 
-        Optional<Pet> PetData = PetRepository.findById(id);
+        Optional<Pet> PetData = petRepository.findById(id);
 
         return PetData.map(pet -> new ResponseEntity<>(pet, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -79,8 +108,9 @@ public class PetController {
         logger.info("Criando pet "+Pet.getNome());
 
         try {
-            Pet _Pet = PetRepository
+            Pet _Pet = petRepository
                     .save(new Pet(
+                            Pet.getOng(),
                             Pet.getNome(),
                             Pet.getDescricao(),
                             Pet.getEspecie(),
@@ -110,7 +140,7 @@ public class PetController {
 
         logger.info("Atualizando pet "+Pet.getId());
 
-        Optional<Pet> PetData = PetRepository.findById(id);
+        Optional<Pet> PetData = petRepository.findById(id);
 
         if (PetData.isPresent()) {
             Pet _Pet = PetData.get();
@@ -128,7 +158,7 @@ public class PetController {
             _Pet.setPeso6(Pet.getPeso6());
             _Pet.setPeso7(Pet.getPeso7());
             _Pet.setPeso8(Pet.getPeso8());
-            return new ResponseEntity<>(PetRepository.save(_Pet), HttpStatus.OK);
+            return new ResponseEntity<>(petRepository.save(_Pet), HttpStatus.OK);
         } else {
             logger.error("Pet "+Pet.getId()+" não encontrado.");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -142,7 +172,7 @@ public class PetController {
         logger.info("Deletando pet "+id);
 
         try {
-            PetRepository.deleteById(id);
+            petRepository.deleteById(id);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Erro ao deletar pet "+id);

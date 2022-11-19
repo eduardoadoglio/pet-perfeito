@@ -13,6 +13,10 @@ public class Pet implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
+    @ManyToOne
+    @JoinColumn(name = "ongs", referencedColumnName = "id")
+    private Ong ong;
+
     @Column(name = "nome")
     private String nome;
 
@@ -59,7 +63,8 @@ public class Pet implements Serializable {
 
     }
 
-    public Pet(String nome, String descricao, String especie, String raca, String sexo, String dataNascimento, int peso1, int peso2, int peso3, int peso4, int peso5, int peso6, int peso7, int peso8) {
+    public Pet(Ong ong, String nome, String descricao, String especie, String raca, String sexo, String dataNascimento, int peso1, int peso2, int peso3, int peso4, int peso5, int peso6, int peso7, int peso8) {
+        this.ong = ong;
         this.nome = nome;
         this.descricao = descricao;
         this.especie = especie;
@@ -74,6 +79,10 @@ public class Pet implements Serializable {
         this.peso6 = peso6;
         this.peso7 = peso7;
         this.peso8 = peso8;
+    }
+
+    public Ong getOng() {
+        return ong;
     }
 
     public String getNome() {
@@ -196,6 +205,7 @@ public class Pet implements Serializable {
     public String toString() {
         return "Pet{" +
                 "id=" + id +
+                ", ongId='" + ong.getId() + '\'' +
                 ", nome='" + nome + '\'' +
                 ", descricao='" + descricao + '\'' +
                 ", especie='" + especie + '\'' +
