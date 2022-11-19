@@ -115,7 +115,7 @@ public class PetController {
     @GetMapping("/pets/raca/{race}")
     public ResponseEntity<List<Pet>> getPetByRace(@PathVariable("race") String raca) {
 
-        logger.info("Obtendo pets da espécie "+raca);
+        logger.info("Obtendo pets da raça "+raca);
 
         try {
             List<Pet> pets = petRepository.findByRaca(raca);
@@ -127,6 +127,27 @@ public class PetController {
         }
         catch (Exception e){
             logger.error("Erro ao retornar todos os pets da raça "+raca);
+            logger.error(""+e);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Operation(summary = "Busca pets por sexo")
+    @GetMapping("/pets/sexo/{sex}")
+    public ResponseEntity<List<Pet>> getPetBySex(@PathVariable("sex") String sexo) {
+
+        logger.info("Obtendo pets do sexo "+sexo);
+
+        try {
+            List<Pet> pets = petRepository.findBySexo(sexo);
+            if (pets.isEmpty()) {
+                logger.error("Nenhum pet encontrado no banco de dados.");
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>(pets, HttpStatus.OK);
+        }
+        catch (Exception e){
+            logger.error("Erro ao retornar todos os pets do sexo "+sexo);
             logger.error(""+e);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }

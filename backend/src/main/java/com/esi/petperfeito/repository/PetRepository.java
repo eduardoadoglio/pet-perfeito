@@ -10,6 +10,7 @@ import com.esi.petperfeito.model.Pet;
 public interface PetRepository extends JpaRepository<Pet, Long> {
     List<Pet> findByEspecie(String especie);
     List<Pet> findByRaca(String raca);
+    List<Pet> findBySexo(String sexo);
     List<Pet> findByIdade(String dataNascimento);
     List<Pet> findByOng(Ong ong);
     Optional<Pet> findById(Long id);
