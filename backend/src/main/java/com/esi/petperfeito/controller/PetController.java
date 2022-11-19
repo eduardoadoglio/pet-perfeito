@@ -90,6 +90,27 @@ public class PetController {
         }
     }
 
+    @Operation(summary = "Busca pets por especie")
+    @GetMapping("/pets/especie/{specie}")
+    public ResponseEntity<List<Pet>> getPetBySpecies(@PathVariable("specie") String especie) {
+
+        logger.info("Obtendo pets da espécie "+especie);
+
+        try {
+            List<Pet> pets = petRepository.findByEspecie(especie);
+            if (pets.isEmpty()) {
+                logger.error("Nenhum pet encontrado no banco de dados.");
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>(pets, HttpStatus.OK);
+        }
+        catch (Exception e){
+            logger.error("Erro ao retornar todos os pets da espécie "+especie);
+            logger.error(""+e);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @Operation(summary = "Busca pet por id")
     @GetMapping("/pets/{id}")
     public ResponseEntity<Pet> getPetById(@PathVariable("id") long id) {
