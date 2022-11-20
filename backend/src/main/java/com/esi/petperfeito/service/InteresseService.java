@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class InteresseService {
 
-    public void generateUserRating(Pet pet, Avaliacao avaliacao, Interesse interesse) {
+    public int generateUserRating(Pet pet, Avaliacao avaliacao) {
 
         int[] weights = collectPetWeights(pet);
         int totalWeights = 0;
@@ -24,7 +24,7 @@ public class InteresseService {
         }
 
         notaFinal = notaParcial / totalWeights;
-        interesse.setNotaUsuario(notaFinal);
+        return notaFinal;
 
     }
 

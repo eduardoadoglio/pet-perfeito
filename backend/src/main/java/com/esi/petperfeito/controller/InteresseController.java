@@ -147,7 +147,7 @@ public class InteresseController {
         }
 
         try {
-            interesseService.generateUserRating(pet, avaliacao, interesse);
+            interesse.setNotaUsuario(interesseService.generateUserRating(pet, avaliacao));
         } catch (Exception e) {
             logger.error("Erro ao calcular pontos do usuário "+user_id);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);

@@ -1,12 +1,10 @@
 package com.esi.petperfeito.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-import com.esi.petperfeito.model.Ong;
-import com.esi.petperfeito.repository.ImageRepository;
-import com.esi.petperfeito.repository.OngRepository;
+import com.esi.petperfeito.model.*;
+import com.esi.petperfeito.repository.*;
+import com.esi.petperfeito.service.InteresseService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,9 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.esi.petperfeito.model.Pet;
-import com.esi.petperfeito.repository.PetRepository;
 
 @CrossOrigin(origins = "http://localhost:8081")
 @RestController
@@ -31,10 +26,35 @@ public class PetController {
     @Autowired
     OngRepository ongRepository;
 
+    @Autowired
+    UsuarioRepository usuarioRepository;
+
+    @Autowired
+    AvaliacaoRepository avaliacaoRepository;
+
+    @Autowired
+    InteresseService interesseService;
+
+    private List<Pet> sortPets (List<Pet> pets, Avaliacao avaliacao){
+
+        Map<Pet, Integer> scores = new HashMap<>();
+        for (Pet pet : pets) {
+            scores.put(pet, interesseService.generateUserRating(pet,avaliacao));
+        }
+
+        TreeMap<Pet, Integer> sortedPets = new TreeMap<>(scores);
+        pets.clear();
+
+        for(Map.Entry<Pet, Integer> entry : sortedPets.entrySet()){
+            pets.add(entry.getKey());
+        }
+
+        return pets;
+    }
+
     @Operation(summary = "Retorna todos os pets no banco de dados")
     @GetMapping("/pets")
     public ResponseEntity<List<Pet>> getAllPets() {
-
         logger.info("Obtendo lista de pets cadastrados");
 
         try {
@@ -54,7 +74,44 @@ public class PetController {
         }
     }
 
-    @Operation(summary = "Busca pets por ong")
+    @Operation(summary = "Retorna todos os pets no banco de dados (para busca com usuário logado)")
+    @GetMapping("/pets/search")
+    public ResponseEntity<List<Pet>> getAllPets(@RequestBody long user_id) {
+
+        Usuario usuario = new Usuario();
+        Avaliacao avaliacao = new Avaliacao();
+
+        try {
+            usuario = usuarioRepository.getById((long) user_id);
+            avaliacao = avaliacaoRepository.getById(usuario.getAvaliacao().getId());
+        }
+        catch (Exception e){
+            logger.error("Usuário de id "+user_id+" não encontrado no banco de dados.");
+            new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        logger.info("Obtendo lista de pets cadastrados");
+
+        try {
+            List<Pet> pets = new ArrayList<>();
+            pets.addAll(petRepository.findAll());
+
+            if (pets.isEmpty()) {
+                logger.error("Nenhum pet encontrado no banco de dados.");
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            List<Pet> response = sortPets(pets, avaliacao);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Erro ao retornar todos os pets.");
+            logger.error(""+e);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Operation(summary = "Retorna todos os pets de uma ONG")
     @GetMapping("/pets/ong/{id}")
     public ResponseEntity<List<Pet>> getPetByOngId(@PathVariable("id") long id) {
 
@@ -83,9 +140,65 @@ public class PetController {
         }
     }
 
-    @Operation(summary = "Busca pets por especie")
-    @GetMapping("/pets/especie/{specie}")
-    public ResponseEntity<List<Pet>> getPetBySpecies(@PathVariable("specie") String especie) {
+    @Operation(summary = "Filtra pets por ong (busca com usuario logado) ")
+    @GetMapping("/pets/search/ong/{id}")
+    public ResponseEntity<List<Pet>> getPetByOngId(@PathVariable("id") long id, @RequestBody long user_id) {
+
+        Usuario usuario = new Usuario();
+        Avaliacao avaliacao = new Avaliacao();
+
+        try {
+            usuario = usuarioRepository.getById((long) user_id);
+            avaliacao = avaliacaoRepository.getById(usuario.getAvaliacao().getId());
+        }
+        catch (Exception e){
+            logger.error("Usuário de id "+user_id+" não encontrado no banco de dados.");
+            new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        logger.info("Obtendo pets da Ong de Id "+id);
+
+        Optional<Ong> ongData = ongRepository.findById(id);
+
+        if (ongData.isPresent()) {
+            Ong ong = ongData.get();
+            try {
+                List<Pet> pets = petRepository.findByOng(ong);
+                if (pets.isEmpty()) {
+                    logger.error("Nenhum pet encontrado no banco de dados.");
+                    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                }
+
+                List<Pet> response = sortPets(pets, avaliacao);
+
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            }
+            catch (Exception e){
+                logger.error("Erro ao retornar todos os pets da Ong "+id);
+                logger.error(""+e);
+                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            logger.error("Ong "+id+" não encontrada.");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @Operation(summary = "Filtra pets por especie")
+    @GetMapping("/pets/search/especie/{specie}")
+    public ResponseEntity<List<Pet>> getPetBySpecies(@PathVariable("specie") String especie, @RequestBody long user_id) {
+
+        Usuario usuario = new Usuario();
+        Avaliacao avaliacao = new Avaliacao();
+
+        try {
+            usuario = usuarioRepository.getById((long) user_id);
+            avaliacao = avaliacaoRepository.getById(usuario.getAvaliacao().getId());
+        }
+        catch (Exception e){
+            logger.error("Usuário de id "+user_id+" não encontrado no banco de dados.");
+            new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
 
         logger.info("Obtendo pets da espécie "+especie);
 
@@ -95,7 +208,9 @@ public class PetController {
                 logger.error("Nenhum pet encontrado no banco de dados.");
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
-            return new ResponseEntity<>(pets, HttpStatus.OK);
+            List<Pet> response = sortPets(pets, avaliacao);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
         catch (Exception e){
             logger.error("Erro ao retornar todos os pets da espécie "+especie);
@@ -104,9 +219,21 @@ public class PetController {
         }
     }
 
-    @Operation(summary = "Busca pets por raça")
-    @GetMapping("/pets/raca/{race}")
-    public ResponseEntity<List<Pet>> getPetByRace(@PathVariable("race") String raca) {
+    @Operation(summary = "Filtra pets por raça")
+    @GetMapping("/pets/search/raca/{race}")
+    public ResponseEntity<List<Pet>> getPetByRace(@PathVariable("race") String raca, @RequestBody long user_id) {
+
+        Usuario usuario = new Usuario();
+        Avaliacao avaliacao = new Avaliacao();
+
+        try {
+            usuario = usuarioRepository.getById((long) user_id);
+            avaliacao = avaliacaoRepository.getById(usuario.getAvaliacao().getId());
+        }
+        catch (Exception e){
+            logger.error("Usuário de id "+user_id+" não encontrado no banco de dados.");
+            new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
 
         logger.info("Obtendo pets da raça "+raca);
 
@@ -116,7 +243,9 @@ public class PetController {
                 logger.error("Nenhum pet encontrado no banco de dados.");
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
-            return new ResponseEntity<>(pets, HttpStatus.OK);
+            List<Pet> response = sortPets(pets, avaliacao);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
         catch (Exception e){
             logger.error("Erro ao retornar todos os pets da raça "+raca);
@@ -125,9 +254,21 @@ public class PetController {
         }
     }
 
-    @Operation(summary = "Busca pets por sexo")
-    @GetMapping("/pets/sexo/{sex}")
-    public ResponseEntity<List<Pet>> getPetBySex(@PathVariable("sex") String sexo) {
+    @Operation(summary = "Filtra pets por sexo")
+    @GetMapping("/pets/search/sexo/{sex}")
+    public ResponseEntity<List<Pet>> getPetBySex(@PathVariable("sex") String sexo, @RequestBody long user_id) {
+
+        Usuario usuario = new Usuario();
+        Avaliacao avaliacao = new Avaliacao();
+
+        try {
+            usuario = usuarioRepository.getById((long) user_id);
+            avaliacao = avaliacaoRepository.getById(usuario.getAvaliacao().getId());
+        }
+        catch (Exception e){
+            logger.error("Usuário de id "+user_id+" não encontrado no banco de dados.");
+            new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
 
         logger.info("Obtendo pets do sexo "+sexo);
 
@@ -137,7 +278,9 @@ public class PetController {
                 logger.error("Nenhum pet encontrado no banco de dados.");
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
-            return new ResponseEntity<>(pets, HttpStatus.OK);
+            List<Pet> response = sortPets(pets, avaliacao);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
         catch (Exception e){
             logger.error("Erro ao retornar todos os pets do sexo "+sexo);
