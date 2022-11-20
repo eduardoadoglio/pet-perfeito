@@ -29,13 +29,14 @@ public class Usuario implements Serializable {
     @Column(name = "data_nascimento")
     private String dataNascimento;
 
+    @Column(name = "return_tag")
+    private boolean returnFlag;
+
     @OneToOne
     @JoinColumn(name = "interessesForm", referencedColumnName = "id")
     private Avaliacao avaliacao;
 
-    public Usuario() {
-
-    }
+    public Usuario() {}
 
     public Usuario(String nome, String cpf, String telefone, String cep, String dataNascimento, Avaliacao avaliacao) {
         this.nome = nome;
@@ -44,6 +45,7 @@ public class Usuario implements Serializable {
         this.cep = cep;
         this.dataNascimento = dataNascimento;
         this.avaliacao = avaliacao;
+        this.returnFlag = false;
     }
 
     public String getNome() {
@@ -96,6 +98,14 @@ public class Usuario implements Serializable {
 
     public void setAvaliacao(Avaliacao avaliacao) {
         this.avaliacao = avaliacao;
+    }
+
+    public boolean getReturnFlag() {
+        return returnFlag;
+    }
+
+    public void setReturnFlag(boolean returnFlag) {
+        this.returnFlag = returnFlag;
     }
 
     @Override
