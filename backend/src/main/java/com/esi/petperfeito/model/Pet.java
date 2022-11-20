@@ -20,6 +20,9 @@ public class Pet implements Serializable {
     @Column(name = "nome")
     private String nome;
 
+    @Column(name = "status")
+    private boolean status;
+
     @Column(name = "descricao")
     private String descricao;
 
@@ -63,9 +66,10 @@ public class Pet implements Serializable {
 
     }
 
-    public Pet(Ong ong, String nome, String descricao, String especie, String raca, String sexo, String dataNascimento, int peso1, int peso2, int peso3, int peso4, int peso5, int peso6, int peso7, int peso8) {
+    public Pet(Ong ong, String nome, boolean status, String descricao, String especie, String raca, String sexo, String dataNascimento, int peso1, int peso2, int peso3, int peso4, int peso5, int peso6, int peso7, int peso8) {
         this.ong = ong;
         this.nome = nome;
+        this.status = status;
         this.descricao = descricao;
         this.especie = especie;
         this.raca = raca;
@@ -91,6 +95,14 @@ public class Pet implements Serializable {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
     }
 
     public String getDescricao() {
@@ -207,6 +219,7 @@ public class Pet implements Serializable {
                 "id=" + id +
                 ", ongId='" + ong.getId() + '\'' +
                 ", nome='" + nome + '\'' +
+                ", status='" + (status ? "disponível" : "indisponível") + '\'' +
                 ", descricao='" + descricao + '\'' +
                 ", especie='" + especie + '\'' +
                 ", raça='" + raca + '\'' +

@@ -168,6 +168,7 @@ public class PetController {
                     .save(new Pet(
                             Pet.getOng(),
                             Pet.getNome(),
+                            Pet.getStatus(),
                             Pet.getDescricao(),
                             Pet.getEspecie(),
                             Pet.getRaca(),
@@ -201,6 +202,7 @@ public class PetController {
         if (PetData.isPresent()) {
             Pet _Pet = PetData.get();
             _Pet.setNome(Pet.getNome());
+            _Pet.setStatus(Pet.getStatus());
             _Pet.setDescricao(Pet.getDescricao());
             _Pet.setEspecie(Pet.getEspecie());
             _Pet.setRaca(Pet.getRaca());

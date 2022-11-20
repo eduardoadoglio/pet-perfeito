@@ -118,10 +118,33 @@ public class InteresseController {
 
         logger.info("Registrando interesse do usuário "+user_id+" no pet "+pet_id);
 
-        Usuario usuario = usuarioRepository.getById((long) user_id);
-        Pet pet = petRepository.getById((long) pet_id);
+        Usuario usuario = new Usuario();
+        Pet pet = new Pet();
+
+        try {
+            usuario = usuarioRepository.getById((long) user_id);
+        }
+        catch (Exception e){
+            logger.error("Usuário de id "+user_id+" não encontrado no banco de dados.");
+            new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        try {
+            pet = petRepository.getById((long) pet_id);
+        }
+        catch (Exception e){
+            logger.error("Pet de id "+user_id+" não encontrado no banco de dados.");
+            new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+
         Avaliacao avaliacao = avaliacaoRepository.getById(usuario.getAvaliacao().getId());
         Interesse interesse = new Interesse(pet, usuario);
+
+        if (!pet.getStatus()) {
+            logger.info("O pet de id '"+pet.getId()+"' não está disponível para adoção."+user_id);
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
 
         try {
             interesseService.generateUserRating(pet, avaliacao, interesse);
