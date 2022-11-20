@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.Date;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
@@ -35,8 +37,8 @@ public class Pet implements Serializable {
     @Column(name = "sexo")
     private String sexo;
 
-    @Column(name = "data_nascimento")
-    private String dataNascimento;
+    @Column(name = "data_nascimento", columnDefinition = "DATE")
+    private LocalDate dataNascimento;
 
     @Column(name = "peso1")
     private int peso1;
@@ -66,7 +68,7 @@ public class Pet implements Serializable {
 
     }
 
-    public Pet(Ong ong, String nome, boolean status, String descricao, String especie, String raca, String sexo, String dataNascimento, int peso1, int peso2, int peso3, int peso4, int peso5, int peso6, int peso7, int peso8) {
+    public Pet(Ong ong, String nome, boolean status, String descricao, String especie, String raca, String sexo, LocalDate dataNascimento, int peso1, int peso2, int peso3, int peso4, int peso5, int peso6, int peso7, int peso8) {
         this.ong = ong;
         this.nome = nome;
         this.status = status;
@@ -137,11 +139,11 @@ public class Pet implements Serializable {
         this.sexo = sexo;
     }
 
-    public String getDataNascimento() {
+    public LocalDate getDataNascimento() {
         return dataNascimento;
     }
 
-    public void setDataNascimento(String dataNascimento) {
+    public void setDataNascimento(LocalDate dataNascimento) {
         this.dataNascimento = dataNascimento;
     }
 

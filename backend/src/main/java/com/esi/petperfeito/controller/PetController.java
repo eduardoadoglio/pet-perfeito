@@ -1,5 +1,6 @@
 package com.esi.petperfeito.controller;
 
+import java.time.LocalDate;
 import java.util.*;
 
 import com.esi.petperfeito.model.*;
@@ -50,6 +51,90 @@ public class PetController {
         }
 
         return pets;
+    }
+
+    @Operation(summary = "Filtra pets por data de nascimento simples (nasceu antes de x data ou depois de x data ")
+    @GetMapping("/pets/search/date/{date}/operator/{op}")
+    public ResponseEntity<List<Pet>> getPetByDate(@PathVariable("op") char operator, @PathVariable("date") LocalDate date, @RequestBody long user_id) {
+
+        Usuario usuario = new Usuario();
+        Avaliacao avaliacao = new Avaliacao();
+
+        try {
+            usuario = usuarioRepository.getById((long) user_id);
+            avaliacao = avaliacaoRepository.getById(usuario.getAvaliacao().getId());
+        }
+        catch (Exception e){
+            logger.error("Usuário de id "+user_id+" não encontrado no banco de dados.");
+            new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        logger.info("Obtendo pets com nasicmento "+operator+" "+date);
+
+        Optional<Ong> ongData = ongRepository.findById(user_id);
+
+        try {
+            List<Pet> pets = new ArrayList<>();
+            if (operator == '>'){
+                pets = petRepository.findAllWithDataNascimentoAfter(date);
+            }
+            else if (operator == '<'){
+                pets = petRepository.findAllWithDataNascimentoBefore(date);
+            }
+
+            if (pets.isEmpty()) {
+                logger.error("Nenhum pet encontrado no banco de dados.");
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            List<Pet> response = sortPets(pets, avaliacao);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        catch (Exception e){
+            logger.error("Erro ao retornar todos os pets com nasicmento "+operator+" "+date);
+            logger.error(""+e);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Operation(summary = "Filtra pets por data de nascimento simples (nasceu antes de x data ou depois de x data ")
+    @GetMapping("/pets/search/date/range/{date1}/{date2}")
+    public ResponseEntity<List<Pet>> getPetByTimeRange(@PathVariable("date1") LocalDate date1, @PathVariable("date2") LocalDate date2, @RequestBody long user_id) {
+
+        Usuario usuario = new Usuario();
+        Avaliacao avaliacao = new Avaliacao();
+
+        try {
+            usuario = usuarioRepository.getById((long) user_id);
+            avaliacao = avaliacaoRepository.getById(usuario.getAvaliacao().getId());
+        }
+        catch (Exception e){
+            logger.error("Usuário de id "+user_id+" não encontrado no banco de dados.");
+            new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        logger.info("Obtendo pets com nascimento entre "+date1+" e "+date2);
+
+        Optional<Ong> ongData = ongRepository.findById(user_id);
+
+        try {
+            List<Pet> pets = petRepository.findAllByDataNascimentoBetween(date1, date2);
+
+            if (pets.isEmpty()) {
+                logger.error("Nenhum pet encontrado no banco de dados.");
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            List<Pet> response = sortPets(pets, avaliacao);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        catch (Exception e){
+            logger.error("Erro ao retornar todos os pets com nascimento entre "+date1+" e "+date2);
+            logger.error(""+e);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Operation(summary = "Retorna todos os pets no banco de dados")
