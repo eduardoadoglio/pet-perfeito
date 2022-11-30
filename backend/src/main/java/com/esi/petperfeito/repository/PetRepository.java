@@ -16,9 +16,9 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
     List<Pet> findByRaca(String raca);
     List<Pet> findBySexo(String sexo);
     List<Pet> findAllByDataNascimentoBetween(LocalDate startDate, LocalDate endDate);
-    @Query("select p from pets p where p.data_nascimento <= :selectedDate")
+    @Query("from Pet p where p.dataNascimento <= :selectedDate")
     List<Pet> findAllWithDataNascimentoBefore(@Param("selectedDate") LocalDate selectedDate);
-    @Query("select p from pets p where p.data_nascimento >= :selectedDate")
+    @Query("from Pet p where p.dataNascimento >= :selectedDate")
     List<Pet> findAllWithDataNascimentoAfter(@Param("selectedDate") LocalDate selectedDate);
     List<Pet> findByOng(Ong ong);
     Optional<Pet> findById(Long id);
