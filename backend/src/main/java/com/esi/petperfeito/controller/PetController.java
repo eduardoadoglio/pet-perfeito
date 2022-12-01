@@ -390,10 +390,10 @@ public class PetController {
     }
 
     @Operation(summary = "Cria pet")
-    @PostMapping("/ong/{id}/pets")
-    public ResponseEntity<Pet> createPet(@RequestBody Pet Pet, @PathParam("id") Long id) {
+    @PostMapping("/pets")
+    public ResponseEntity<Pet> createPet(@RequestBody Pet Pet) {
 
-        Optional<Ong> ongData = ongRepository.findById(id);
+        Optional<Ong> ongData = ongRepository.findById(Long.valueOf(0));
 
         if (ongData.isPresent()) {
             Ong ong = ongData.get();
@@ -426,7 +426,7 @@ public class PetController {
                 return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } else {
-            logger.error("Ong "+id+" não encontrada.");
+            logger.error("Ong "+0+" não encontrada.");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
