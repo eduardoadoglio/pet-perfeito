@@ -74,18 +74,9 @@ public class UsuarioController {
 
     @Operation(summary = "Cria usuario")
     @PostMapping("/users")
-    public ResponseEntity<Usuario> createUser(@RequestBody Usuario usuario, @RequestBody Avaliacao avaliacao) {
+    public ResponseEntity<Usuario> createUser(@RequestBody Usuario usuario) {
 
         logger.info("Cadastrando usuário "+usuario.getNome());
-
-        Avaliacao form = new Avaliacao();
-
-        try {
-            form = avaliacaoRepository.save(avaliacao);
-        } catch (Exception e) {
-            logger.error("Erro ao tentar salvar avaliação "+avaliacao.getId());
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
 
         try {
             Usuario _usuario = usuarioRepository
@@ -94,14 +85,48 @@ public class UsuarioController {
                             usuario.getCpf(),
                             usuario.getTelefone(),
                             usuario.getCep(),
-                            usuario.getDataNascimento(),
-                            form
+                            usuario.getDataNascimento()
                     ));
             return new ResponseEntity<>(_usuario, HttpStatus.CREATED);
         } catch (Exception e) {
             logger.error("Erro ao cadastrar usuário "+usuario.getNome());
             logger.error(String.valueOf(e));
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Operation(summary = "Cria formulario do usuario")
+    @PostMapping("/user/{id}/form")
+    public ResponseEntity<Usuario> createUserForm(@RequestBody Avaliacao avaliacao, @PathVariable("id") long id) {
+
+        logger.info("Atualizando cadastro do usuário "+id);
+
+        Optional<Usuario> usuarioData = usuarioRepository.findById(id);
+
+        if (usuarioData.isPresent()) {
+            try {
+
+                Avaliacao form = new Avaliacao();
+
+                try {
+                    form = avaliacaoRepository.save(avaliacao);
+                } catch (Exception e) {
+                    logger.error("Erro ao tentar salvar avaliação "+avaliacao.getId());
+                    return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+
+                Usuario _usuario = usuarioData.get();
+                _usuario.setAvaliacao(avaliacao);
+                return new ResponseEntity<>(usuarioRepository.save(_usuario), HttpStatus.OK);
+            }
+            catch (Exception e){
+                logger.error("Erro ao atualizar dados do usuario de id "+id);
+                logger.error(String.valueOf(e));
+                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            logger.error("Erro ao atualizar cadastro do usuário "+id+", não encontrado.");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 

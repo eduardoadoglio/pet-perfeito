@@ -38,13 +38,12 @@ public class Usuario implements Serializable {
 
     public Usuario() {}
 
-    public Usuario(String nome, String cpf, String telefone, String cep, String dataNascimento, Avaliacao avaliacao) {
+    public Usuario(String nome, String cpf, String telefone, String cep, String dataNascimento) {
         this.nome = nome;
         this.cpf = cpf;
         this.telefone = telefone;
         this.cep = cep;
         this.dataNascimento = dataNascimento;
-        this.avaliacao = avaliacao;
         this.returnFlag = false;
     }
 
