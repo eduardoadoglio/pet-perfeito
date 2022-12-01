@@ -8,15 +8,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class InteresseService {
 
-    public int generateUserRating(Pet pet, Avaliacao avaliacao) {
+    public Integer generateUserRating(Pet pet, Avaliacao avaliacao) {
 
-        int[] weights = collectPetWeights(pet);
-        int totalWeights = 0;
+        Integer[] weights = collectPetWeights(pet);
+        Integer totalWeights = 0;
 
         String[] results = (avaliacao.toString()).split(",");
 
-        int notaFinal = 0;
-        int notaParcial = 0;
+        Integer notaFinal = 0;
+        Integer notaParcial = 0;
 
         for (int i = 0; i<8; i++){
             notaParcial += Integer.parseInt(results[i]) * weights[i];
@@ -28,8 +28,8 @@ public class InteresseService {
 
     }
 
-    private int[] collectPetWeights(Pet pet) {
-        int[] weights = new int[8];
+    private Integer[] collectPetWeights(Pet pet) {
+        Integer[] weights = new Integer[8];
 
         weights[0] = pet.getPeso1();
         weights[1] = pet.getPeso2();

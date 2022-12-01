@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.websocket.server.PathParam;
+
 @CrossOrigin(origins = "http://localhost:8081")
 @RestController
 @RequestMapping("/api")
@@ -38,16 +40,18 @@ public class PetController {
 
     private List<Pet> sortPets (List<Pet> pets, Avaliacao avaliacao){
 
-        Map<Pet, Integer> scores = new HashMap<>();
+        Map<Long, Integer> scores = new HashMap<>();
         for (Pet pet : pets) {
-            scores.put(pet, interesseService.generateUserRating(pet,avaliacao));
+            scores.put(pet.getId(), interesseService.generateUserRating(pet,avaliacao));
         }
 
-        TreeMap<Pet, Integer> sortedPets = new TreeMap<>(scores);
+        TreeMap<Long, Integer> sortedPets = new TreeMap<>(scores);
+
         pets.clear();
 
-        for(Map.Entry<Pet, Integer> entry : sortedPets.entrySet()){
-            pets.add(entry.getKey());
+        for(Map.Entry<Long, Integer> entry : sortedPets.entrySet()){
+            Pet pet = petRepository.getById(entry.getKey());
+            pets.add(pet);
         }
 
         return pets;
@@ -160,14 +164,14 @@ public class PetController {
     }
 
     @Operation(summary = "Retorna todos os pets no banco de dados (para busca com usuário logado)")
-    @GetMapping("/pets/search")
-    public ResponseEntity<List<Pet>> getAllPets(@RequestBody long user_id) {
+    @GetMapping("/pets/search/userlogged/{user_id}")
+    public ResponseEntity<List<Pet>> getAllPets(@PathVariable long user_id) {
 
         Usuario usuario = new Usuario();
         Avaliacao avaliacao = new Avaliacao();
 
         try {
-            usuario = usuarioRepository.getById((long) user_id);
+            usuario = usuarioRepository.getById(user_id);
             avaliacao = avaliacaoRepository.getById(usuario.getAvaliacao().getId());
         }
         catch (Exception e){
@@ -386,36 +390,44 @@ public class PetController {
     }
 
     @Operation(summary = "Cria pet")
-    @PostMapping("/pets")
-    public ResponseEntity<Pet> createPet(@RequestBody Pet Pet) {
+    @PostMapping("/ong/{id}/pets")
+    public ResponseEntity<Pet> createPet(@RequestBody Pet Pet, @PathParam("id") Long id) {
 
-        logger.info("Criando pet "+Pet.getNome());
+        Optional<Ong> ongData = ongRepository.findById(id);
 
-        try {
-            Pet _Pet = petRepository
-                    .save(new Pet(
-                            Pet.getOng(),
-                            Pet.getNome(),
-                            Pet.getStatus(),
-                            Pet.getDescricao(),
-                            Pet.getEspecie(),
-                            Pet.getRaca(),
-                            Pet.getSexo(),
-                            Pet.getDataNascimento(),
-                            Pet.getPeso1(),
-                            Pet.getPeso2(),
-                            Pet.getPeso3(),
-                            Pet.getPeso4(),
-                            Pet.getPeso5(),
-                            Pet.getPeso6(),
-                            Pet.getPeso7(),
-                            Pet.getPeso8()
-                    ));
-            return new ResponseEntity<>(_Pet, HttpStatus.CREATED);
-        } catch (Exception e) {
-            logger.error("Erro ao criar pet "+Pet.getNome());
-            logger.error(""+e);
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        if (ongData.isPresent()) {
+            Ong ong = ongData.get();
+
+            logger.info("Criando pet " + Pet.getNome());
+
+            try {
+                Pet _Pet = petRepository
+                        .save(new Pet(
+                                ong,
+                                Pet.getNome(),
+                                Pet.getDescricao(),
+                                Pet.getEspecie(),
+                                Pet.getRaca(),
+                                Pet.getSexo(),
+                                Pet.getDataNascimento(),
+                                Pet.getPeso1(),
+                                Pet.getPeso2(),
+                                Pet.getPeso3(),
+                                Pet.getPeso4(),
+                                Pet.getPeso5(),
+                                Pet.getPeso6(),
+                                Pet.getPeso7(),
+                                Pet.getPeso8()
+                        ));
+                return new ResponseEntity<>(_Pet, HttpStatus.CREATED);
+            } catch (Exception e) {
+                logger.error("Erro ao criar pet " + Pet.getNome());
+                logger.error("" + e);
+                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            logger.error("Ong "+id+" não encontrada.");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 

@@ -23,7 +23,7 @@ public class Pet implements Serializable {
     private String nome;
 
     @Column(name = "status")
-    private boolean status;
+    private Boolean status;
 
     @Column(name = "descricao")
     private String descricao;
@@ -38,40 +38,40 @@ public class Pet implements Serializable {
     private String sexo;
 
     @Column(name = "data_nascimento", columnDefinition = "DATE")
-    private LocalDate dataNascimento;
+    private Date dataNascimento;
 
     @Column(name = "peso1")
-    private int peso1;
+    private Integer peso1;
 
     @Column(name = "peso2")
-    private int peso2;
+    private Integer peso2;
 
     @Column(name = "peso3")
-    private int peso3;
+    private Integer peso3;
 
     @Column(name = "peso4")
-    private int peso4;
+    private Integer peso4;
 
     @Column(name = "peso5")
-    private int peso5;
+    private Integer peso5;
 
     @Column(name = "peso6")
-    private int peso6;
+    private Integer peso6;
 
     @Column(name = "peso7")
-    private int peso7;
+    private Integer peso7;
 
     @Column(name = "peso8")
-    private int peso8;
+    private Integer peso8;
 
     public Pet(){
 
     }
 
-    public Pet(Ong ong, String nome, boolean status, String descricao, String especie, String raca, String sexo, LocalDate dataNascimento, int peso1, int peso2, int peso3, int peso4, int peso5, int peso6, int peso7, int peso8) {
+    public Pet(Ong ong, String nome, String descricao, String especie, String raca, String sexo, Date dataNascimento, Integer peso1, Integer peso2, Integer peso3, Integer peso4, Integer peso5, Integer peso6, Integer peso7, Integer peso8) {
         this.ong = ong;
         this.nome = nome;
-        this.status = status;
+        this.status = false;
         this.descricao = descricao;
         this.especie = especie;
         this.raca = raca;
@@ -139,11 +139,11 @@ public class Pet implements Serializable {
         this.sexo = sexo;
     }
 
-    public LocalDate getDataNascimento() {
+    public Date getDataNascimento() {
         return dataNascimento;
     }
 
-    public void setDataNascimento(LocalDate dataNascimento) {
+    public void setDataNascimento(Date dataNascimento) {
         this.dataNascimento = dataNascimento;
     }
 
@@ -151,7 +151,7 @@ public class Pet implements Serializable {
         return id;
     }
 
-    public int getPeso1() {
+    public Integer getPeso1() {
         return peso1;
     }
 
@@ -159,7 +159,7 @@ public class Pet implements Serializable {
         this.peso1 = peso1;
     }
 
-    public int getPeso2() {
+    public Integer getPeso2() {
         return peso2;
     }
 
@@ -167,7 +167,7 @@ public class Pet implements Serializable {
         this.peso2 = peso2;
     }
 
-    public int getPeso3() {
+    public Integer getPeso3() {
         return peso3;
     }
 
@@ -175,7 +175,7 @@ public class Pet implements Serializable {
         this.peso3 = peso3;
     }
 
-    public int getPeso4() {
+    public Integer getPeso4() {
         return peso4;
     }
 
@@ -183,7 +183,7 @@ public class Pet implements Serializable {
         this.peso4 = peso4;
     }
 
-    public int getPeso5() {
+    public Integer getPeso5() {
         return peso5;
     }
 
@@ -191,7 +191,7 @@ public class Pet implements Serializable {
         this.peso5 = peso5;
     }
 
-    public int getPeso6() {
+    public Integer getPeso6() {
         return peso6;
     }
 
@@ -199,7 +199,7 @@ public class Pet implements Serializable {
         this.peso6 = peso6;
     }
 
-    public int getPeso7() {
+    public Integer getPeso7() {
         return peso7;
     }
 
@@ -207,7 +207,7 @@ public class Pet implements Serializable {
         this.peso7 = peso7;
     }
 
-    public int getPeso8() {
+    public Integer getPeso8() {
         return peso8;
     }
 
