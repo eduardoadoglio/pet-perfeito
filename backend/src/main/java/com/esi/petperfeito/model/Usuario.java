@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDate;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
@@ -26,8 +27,8 @@ public class Usuario implements Serializable {
     @Column(name = "cep")
     private String cep;
 
-    @Column(name = "data_nascimento")
-    private String dataNascimento;
+    @Column(name = "data_nascimento", columnDefinition = "DATE")
+    private LocalDate dataNascimento;
 
     @Column(name = "return_tag")
     private boolean returnFlag;
@@ -38,7 +39,7 @@ public class Usuario implements Serializable {
 
     public Usuario() {}
 
-    public Usuario(String nome, String cpf, String telefone, String cep, String dataNascimento) {
+    public Usuario(String nome, String cpf, String telefone, String cep, LocalDate dataNascimento) {
         this.nome = nome;
         this.cpf = cpf;
         this.telefone = telefone;
@@ -79,11 +80,11 @@ public class Usuario implements Serializable {
         this.cep = cep;
     }
 
-    public String getDataNascimento() {
+    public LocalDate getDataNascimento() {
         return dataNascimento;
     }
 
-    public void setDataNascimento(String dataNascimento) {
+    public void setDataNascimento(LocalDate dataNascimento) {
         this.dataNascimento = dataNascimento;
     }
 

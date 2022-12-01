@@ -38,7 +38,7 @@ public class Pet implements Serializable {
     private String sexo;
 
     @Column(name = "data_nascimento", columnDefinition = "DATE")
-    private Date dataNascimento;
+    private LocalDate dataNascimento;
 
     @Column(name = "peso1")
     private Integer peso1;
@@ -68,7 +68,7 @@ public class Pet implements Serializable {
 
     }
 
-    public Pet(Ong ong, String nome, String descricao, String especie, String raca, String sexo, Date dataNascimento, Integer peso1, Integer peso2, Integer peso3, Integer peso4, Integer peso5, Integer peso6, Integer peso7, Integer peso8) {
+    public Pet(Ong ong, String nome, String descricao, String especie, String raca, String sexo, LocalDate dataNascimento, Integer peso1, Integer peso2, Integer peso3, Integer peso4, Integer peso5, Integer peso6, Integer peso7, Integer peso8) {
         this.ong = ong;
         this.nome = nome;
         this.status = false;
@@ -139,11 +139,11 @@ public class Pet implements Serializable {
         this.sexo = sexo;
     }
 
-    public Date getDataNascimento() {
+    public LocalDate getDataNascimento() {
         return dataNascimento;
     }
 
-    public void setDataNascimento(Date dataNascimento) {
+    public void setDataNascimento(LocalDate dataNascimento) {
         this.dataNascimento = dataNascimento;
     }
 
